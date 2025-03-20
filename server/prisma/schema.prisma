@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  password  String
+  name      String
+  points    Int     @default(0) // Points earned from reviews
+  createdAt DateTime @default(now())
+  reviews   Review[]
+  redemptions Redemption[]
+  pointTransactions PointTransaction[] 
+}
+
+model WeatherReport {
+  id         Int     @id @default(autoincrement())
+  location   String
+  temperature Float
+  humidity   Float
+  airQualityIndex Int
+  createdAt  DateTime @default(now())
+}
+
+model Review {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  location  String
+  rating    Int     // 1-5 stars for air quality
+  comment   String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+}
+
+model PointTransaction {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])  
+  points    Int     // Points added or subtracted
+  reason    String  // "Review Submitted", "Reward Redeemed", etc.
+  createdAt DateTime @default(now())
+}
+
+model Reward {
+  id        Int     @id @default(autoincrement())
+  name      String
+  description String?
+  cost      Int     // Cost in points
+  createdAt DateTime @default(now())
+  redemptions Redemption[]
+}
+
+model Redemption {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  rewardId  Int
+  reward    Reward  @relation(fields: [rewardId], references: [id])
+  createdAt DateTime @default(now())
+}
