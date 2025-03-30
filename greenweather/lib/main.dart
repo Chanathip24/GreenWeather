@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:greenweather/screens/forecastPage.dart';
 import 'package:greenweather/screens/leaderboardPage.dart';
 import 'package:greenweather/screens/loginPage.dart';
 

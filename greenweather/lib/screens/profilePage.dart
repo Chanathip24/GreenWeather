@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/screens/rewardPage.dart';
-import 'package:greenweather/widgets/Appbar.dart';
 import 'package:intl/intl.dart';
+
+//model
+import '../model/activityModel.dart';
 
 class GreenUserProfilePage extends StatefulWidget {
   const GreenUserProfilePage({super.key});
@@ -279,20 +281,6 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
       ),
     );
   }
-}
-
-class ActivityItem {
-  final String title;
-  final DateTime date;
-  final int points;
-  final bool isPositive;
-
-  ActivityItem({
-    required this.title,
-    required this.date,
-    required this.points,
-    required this.isPositive,
-  });
 }
 
 class ActivityListItem extends StatelessWidget {
