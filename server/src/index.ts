@@ -1,9 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
-import type { Request, Response } from "express";
-import { Router } from "express";
-import cors from "cors";
 
+import cors from "cors";
+//routes
+import authenticationRoute from './routes/authenticationRoute';
+import weatherRoute from './routes/weatherRoute';
 //Initialize env
 dotenv.config();
 
@@ -18,14 +19,8 @@ app.use(
   cors({ credentials: true, allowedHeaders: ["Content-Type", "Authorization"] })
 );
 
-const router = Router();
-
-app.use(router);
-
-router.get("/", (req: Request, res: Response) => {
-  res.json({ word: "Hi this is green weather" });
-});
-
+app.use("/authentication",authenticationRoute);
+app.use("/weather",weatherRoute);
 app.listen(PORT, (err) => {
   console.log(`Server is running on port ${PORT}`);
 });
