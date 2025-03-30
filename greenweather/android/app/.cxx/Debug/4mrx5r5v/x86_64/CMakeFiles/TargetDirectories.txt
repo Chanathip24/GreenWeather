@@ -1,0 +1,2 @@
+D:/MU_works/mobile/GreenWeather/greenweather/android/app/.cxx/Debug/4mrx5r5v/x86_64/CMakeFiles/edit_cache.dir
+D:/MU_works/mobile/GreenWeather/greenweather/android/app/.cxx/Debug/4mrx5r5v/x86_64/CMakeFiles/rebuild_cache.dir
