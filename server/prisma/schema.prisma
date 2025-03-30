@@ -20,18 +20,10 @@ model User {
   name      String
   points    Int     @default(0) // Points earned from reviews
   createdAt DateTime @default(now())
+  refreshToken String?
   reviews   Review[]
   redemptions Redemption[]
   pointTransactions PointTransaction[] 
-}
-
-model WeatherReport {
-  id         Int     @id @default(autoincrement())
-  location   String
-  temperature Float
-  humidity   Float
-  airQualityIndex Int
-  createdAt  DateTime @default(now())
 }
 
 model Review {
@@ -39,7 +31,8 @@ model Review {
   userId    Int
   user      User    @relation(fields: [userId], references: [id])
   location  String
-  rating    Int     // 1-5 stars for air quality
+  rating    Int @default(0)
+  dislike Int @default(0)     // 1-5 stars for air quality
   comment   String?
   imageUrl  String?
   createdAt DateTime @default(now())

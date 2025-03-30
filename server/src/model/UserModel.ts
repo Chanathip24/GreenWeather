@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import type { IUser } from "../types/userType";
-import { password } from "bun";
+
 const prisma = new PrismaClient();
 
 class Usermodel {
@@ -25,16 +25,19 @@ class Usermodel {
         name: true,
         points: true,
         email: true,
+        password:true
       },
     });
   }
 
+  //delete user by id
   async deleteUserByID(id: number) {
     return await prisma.user.delete({
       where: { id: id },
     });
   }
 
+  //update userdata
   async updateUser(user: IUser) {
     return await prisma.user.update({
       where: { id: user.id },
@@ -47,7 +50,8 @@ class Usermodel {
     });
   }
 
-  async createUser(user: IUser) : Promise<IUser>{
+  //register
+  async createUser(user: IUser): Promise<IUser> {
     return await prisma.user.create({
       data: { name: user.name!, email: user.email, password: user.password! },
     });
