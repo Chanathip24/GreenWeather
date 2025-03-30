@@ -24,7 +24,11 @@ Follow these steps to set up the project locally:
 3. Running Application on your emulator.
 
 ## Setup and Installation Backend
+1. **Go to server folder**
 
+   ```bash
+   cd server
+   ```
 1. **Install dependencies**
 
    ```bash
