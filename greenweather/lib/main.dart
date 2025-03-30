@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/screens/forecastPage.dart';
+import 'package:greenweather/screens/leaderboardPage.dart';
+import 'package:greenweather/screens/loginPage.dart';
 
 //screen
 import 'package:greenweather/screens/mainScreen.dart';
+import 'package:greenweather/screens/reviewsPage.dart';
+import 'package:greenweather/screens/submitreportPage.dart';
 //component
 import 'widgets/Navbar.dart';
 
@@ -53,10 +58,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
         index: _selectedPage,
         children: [
           Mainscreen(),
-          Text("This is page $_selectedPage"),
-          Text("This is page $_selectedPage"),
-          Text("This is page $_selectedPage"),
-          Text("This is page $_selectedPage"),
+          ReviewPage(),
+          AirQualityForm(),
+          Leaderboardpage(),
+          LoginPage(),
         ],
       ),
     );

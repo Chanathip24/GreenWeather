@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-class Appbar extends StatefulWidget {
-  const Appbar({super.key});
+class Mainappbar extends StatefulWidget {
+  const Mainappbar({super.key});
 
   @override
-  State<Appbar> createState() => _MyWidgetState();
+  State<Mainappbar> createState() => _MyWidgetState();
 }
 
-class _MyWidgetState extends State<Appbar> {
+class _MyWidgetState extends State<Mainappbar> {
   @override
   Widget build(BuildContext context) {
-    return mainAppbar();
+    return Mainappbar();
   }
 
-  Padding mainAppbar() {
+  Mainappbar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(

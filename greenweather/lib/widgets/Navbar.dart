@@ -47,7 +47,6 @@ class _NavbarState extends State<Navbar> {
             widget.selectedindex == 1,
             1,
           ),
-
           Container(
             decoration: BoxDecoration(
               color: Colors.green,
@@ -63,8 +62,8 @@ class _NavbarState extends State<Navbar> {
             ),
           ),
           _buildBottomNavItem(
-            Icons.notifications_none,
-            'แจ้งเตือน',
+            Icons.emoji_events,
+            'อันดับ',
             widget.selectedindex == 3,
             3,
           ),
@@ -93,10 +92,9 @@ class _NavbarState extends State<Navbar> {
         children: [
           Icon(
             icon,
-            color:
-                isMid != null
-                    ? Colors.white
-                    : isActive
+            color: isMid != null
+                ? Colors.white
+                : isActive
                     ? Colors.green
                     : Colors.grey,
           ),
@@ -104,10 +102,9 @@ class _NavbarState extends State<Navbar> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color:
-                  isMid != null
-                      ? Colors.white
-                      : isActive
+              color: isMid != null
+                  ? Colors.white
+                  : isActive
                       ? Colors.green
                       : Colors.grey,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
