@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/screens/forecastPage.dart';
 import 'package:greenweather/widgets/Appbar.dart';
 
-class Mainscreen extends StatelessWidget {
+class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
 
+  @override
+  State<Mainscreen> createState() => _MainscreenState();
+}
+
+class _MainscreenState extends State<Mainscreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(
         children: [
-          Appbar(),
+          Mainappbar(),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -95,7 +101,7 @@ class Mainscreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Icon(
-                    Icons.cloud_outlined,
+                    Icons.cloud,
                     color: Colors.green[400],
                     size: 40,
                   ),
@@ -293,7 +299,11 @@ class Mainscreen extends StatelessWidget {
 
   Widget _buildFutureForecastButton() {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        //page route ไปที่ forecast page
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ForecastPage()));
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
