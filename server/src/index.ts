@@ -5,6 +5,7 @@ import cors from "cors";
 //routes
 import authenticationRoute from './routes/authenticationRoute';
 import weatherRoute from './routes/weatherRoute';
+import { errorHandler } from "./middlewares/errorHandler";
 //Initialize env
 dotenv.config();
 
@@ -21,6 +22,9 @@ app.use(
 
 app.use("/authentication",authenticationRoute);
 app.use("/weather",weatherRoute);
+
+
+app.use(errorHandler);
 app.listen(PORT, (err) => {
   console.log(`Server is running on port ${PORT}`);
 });

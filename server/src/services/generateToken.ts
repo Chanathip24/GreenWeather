@@ -1,13 +1,15 @@
+import { type tokenOutput } from "./../types/tokenType";
 import jwt from "jsonwebtoken";
-import type { IUser } from "../types/userType";
-import dotenv from 'dotenv'
+import type { IUser, UserResponse } from "../types/userType";
+import dotenv from "dotenv";
+
 //init
-dotenv.config()
+dotenv.config();
 
-const JWT_KEY = process.env.JWT_KEY || "JWT_KEY"
-export const generateToken = (user: IUser):{refreshToken:string,accessToken:string} => {
+const JWT_KEY = process.env.JWT_KEY || "JWT_KEY";
 
-    const refreshToken = jwt.sign(user,JWT_KEY,{expiresIn:"7d"}) 
-    const accessToken = jwt.sign(user,JWT_KEY,{expiresIn:"1m"})
-    return {refreshToken,accessToken}
+export const generateToken = (user: UserResponse): tokenOutput => {
+  const refreshToken = jwt.sign(user, JWT_KEY, { expiresIn: "60d" });
+  const accessToken = jwt.sign(user, JWT_KEY, { expiresIn: "15m" });
+  return { accessToken, refreshToken };
 };

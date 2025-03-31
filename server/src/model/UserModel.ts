@@ -1,11 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import type { IUser } from "../types/userType";
+import type { InsertUser, IUser, UserResponse } from "../types/userType";
+import type { userUpdateRefreshToken } from "../types/tokenType";
 
 const prisma = new PrismaClient();
 
 class Usermodel {
   //get all user
-  async getAllUser(): Promise<IUser[]> {
+  async getAllUser(): Promise<UserResponse[]> {
     return await prisma.user.findMany({
       select: {
         id: true,
@@ -25,18 +26,24 @@ class Usermodel {
         name: true,
         points: true,
         email: true,
-        password:true
+        password: true,
       },
     });
   }
 
   //delete user by id
-  async deleteUserByID(id: number) {
+  async deleteUserByID(id: string):Promise<IUser> {
     return await prisma.user.delete({
       where: { id: id },
     });
   }
-
+  //update refreshToken
+  async updateUserRefreshToken(data: userUpdateRefreshToken): Promise<IUser> {
+    return await prisma.user.update({
+      where: { id: data.id },
+      data: { refreshToken: data.refreshToken },
+    });
+  }
   //update userdata
   async updateUser(user: IUser) {
     return await prisma.user.update({
@@ -51,9 +58,9 @@ class Usermodel {
   }
 
   //register
-  async createUser(user: IUser): Promise<IUser> {
+  async createUser(user: InsertUser): Promise<IUser> {
     return await prisma.user.create({
-      data: { name: user.name!, email: user.email, password: user.password! },
+      data: { name: user.name, email: user.email, password: user.password },
     });
   }
 }
