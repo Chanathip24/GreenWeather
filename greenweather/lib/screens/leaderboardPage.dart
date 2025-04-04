@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/screens/submitreportPage.dart';
 
 // The LeaderboardScreen class that only returns a Scaffold
 class Leaderboardpage extends StatefulWidget {
@@ -141,13 +142,10 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
               // Bottom action button
               ElevatedButton.icon(
                 onPressed: () {
-                  // Action to submit review
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Opening review submission'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AirQualityForm()));
                 },
                 icon: const Icon(Icons.add_circle_outline),
                 label: const Text(
