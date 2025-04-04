@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/screens/forecastPage.dart';
+import 'package:greenweather/screens/weatherDetailPage.dart';
 import 'package:greenweather/widgets/Appbar.dart';
 
 class Mainscreen extends StatefulWidget {
@@ -21,7 +22,15 @@ class _MainscreenState extends State<Mainscreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  _buildWeatherCard(),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => WeatherDetailPage()));
+                    },
+                    child: _buildWeatherCard(),
+                  ),
                   const SizedBox(height: 16),
                   _buildAirQualityCard(),
                   const SizedBox(height: 16),
