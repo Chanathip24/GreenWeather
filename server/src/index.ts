@@ -23,8 +23,12 @@ app.use(
 app.use("/authentication",authenticationRoute);
 app.use("/weather",weatherRoute);
 
-
+//error handler
 app.use(errorHandler);
+
 app.listen(PORT, (err) => {
-  console.log(`Server is running on port ${PORT}`);
+  if(err){
+    console.log(err)
+  }
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });

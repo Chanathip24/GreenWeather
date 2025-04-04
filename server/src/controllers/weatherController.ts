@@ -14,15 +14,13 @@ class weather {
     //ขอชื่อภาษา
     const lang = (req.query.lang as string) ?? null;
     try {
-      //get location lat and lon
-      const { lat, lon, locationName } = await getLocation(province);
       //get weather forecast
-      const data = await getWeatherdata({ lat, lon, lang });
+      const data = await getWeatherdata({ location:province, lang });
       //return
       res.status(httpStatus.OK).json({
         status: "success",
         message: "Fetch data successfully",
-        data: { locationName, ...data },
+        data: { province, ...data },
       });
     } catch (error) {
       next(error);

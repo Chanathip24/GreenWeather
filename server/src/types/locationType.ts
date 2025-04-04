@@ -6,6 +6,5 @@ export interface locationResponse {
 
 export interface locationInput {
   lang?: string;
-  lat: string;
-  lon: string;
+  location : string;
 }
