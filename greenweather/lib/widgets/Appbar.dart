@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/providers/province_provider.dart';
+import 'package:greenweather/providers/weather_provider.dart';
+import 'package:provider/provider.dart';
 
-class Mainappbar extends StatefulWidget {
-  const Mainappbar({super.key});
+class MainAppBar extends StatelessWidget {
+  final WeatherProvider? weatherProvider;
 
-  @override
-  State<Mainappbar> createState() => _MyWidgetState();
-}
+  const MainAppBar({super.key, this.weatherProvider});
 
-class _MyWidgetState extends State<Mainappbar> {
   @override
   Widget build(BuildContext context) {
-    return Mainappbar();
-  }
+    // Get the provider without using Consumer
+    final provinceProvider = Provider.of<ProvinceProvider>(context);
 
-  Mainappbar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
@@ -22,9 +21,25 @@ class _MyWidgetState extends State<Mainappbar> {
             children: [
               Icon(Icons.location_on, color: Colors.green[400], size: 20),
               const SizedBox(width: 4),
-              const Text(
-                'กรุงเทพมหานคร',
-                style: TextStyle(fontWeight: FontWeight.w500),
+              DropdownButton<String>(
+                value: provinceProvider.selectProvince,
+                items: provinceProvider.provinces.keys
+                    .map<DropdownMenuItem<String>>((String key) {
+                  return DropdownMenuItem<String>(
+                    value: key,
+                    child: Text(
+                        provinceProvider.provinces[key]?["th"] ?? "ม่ายลุ"),
+                  );
+                }).toList(),
+                onChanged: (String? value) async {
+                  if (value != null) {
+                    provinceProvider.setProvince(value);
+
+                    if (weatherProvider != null) {
+                      await weatherProvider!.fetchWeatherData(value);
+                    }
+                  }
+                },
               ),
             ],
           ),
