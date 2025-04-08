@@ -3,7 +3,7 @@ import 'package:greenweather/screens/submitreportPage.dart';
 
 // The LeaderboardScreen class that only returns a Scaffold
 class Leaderboardpage extends StatefulWidget {
-  const Leaderboardpage({super.key});
+  const Leaderboardpage({Key? key}) : super(key: key);
 
   @override
   State<Leaderboardpage> createState() => _LeaderboardpageState();
