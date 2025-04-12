@@ -11,7 +11,7 @@ class ReviewPage extends StatelessWidget {
         child: Column(
           children: [
             //appbar
-            Mainappbar(),
+            MainAppBar(),
             // Header section
             Container(
               padding: const EdgeInsets.all(16.0),

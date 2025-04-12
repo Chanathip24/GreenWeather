@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:greenweather/screens/forecastPage.dart';
+import 'package:greenweather/model/adviceModel.dart';
+import 'package:greenweather/providers/pollution_provider.dart';
+import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/screens/weatherDetailPage.dart';
+import 'package:greenweather/widgets/Airqualitycard.dart';
 import 'package:greenweather/widgets/Appbar.dart';
+import 'package:greenweather/widgets/Weathercard.dart';
+import 'package:provider/provider.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
@@ -11,260 +16,100 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainscreenState extends State<Mainscreen> {
+  String _selectedCity = 'Bangkok';
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      await Provider.of<PollutionProvider>(context, listen: false)
+          .fetchPollution(_selectedCity);
+      await Provider.of<WeatherProvider>(context, listen: false)
+          .fetchWeatherData(_selectedCity);
+    });
+  }
+
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          Mainappbar(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => WeatherDetailPage()));
-                    },
-                    child: _buildWeatherCard(),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildAirQualityCard(),
-                  const SizedBox(height: 16),
-                  _buildHealthCard(),
-                  const SizedBox(height: 16),
-                  _buildFutureForecastButton(),
-                ],
-              ),
+    //provider
+    final weatherProvider = Provider.of<WeatherProvider>(context);
+    final pollutionProvider = Provider.of<PollutionProvider>(context);
+    if (weatherProvider.isLoading && pollutionProvider.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (weatherProvider.error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 60,
+              color: Colors.red,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeatherCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.green[50],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'อ. 8 ม.ค.',
-            style: TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '32',
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '°C',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.amber[100],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'มีแดดทั่วไป',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.green, width: 2),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.cloud,
-                    color: Colors.green[400],
-                    size: 40,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildWeatherInfoItem(
-                Icons.water_drop,
-                'ความชื้น',
-                '65%',
-                Colors.blue,
-              ),
-              _buildWeatherInfoItem(
-                Icons.air,
-                'ลม',
-                '8 กม./ชม.',
-                Colors.blue[300]!,
-              ),
-              _buildWeatherInfoItem(
-                Icons.thermostat,
-                'ความรู้สึก',
-                '34°C',
-                Colors.orange,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeatherInfoItem(
-    IconData icon,
-    String label,
-    String value,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.black54),
+            SizedBox(
+              height: 16,
+            ),
+            Text(
+              'Error: ${weatherProvider.error}',
+              textAlign: TextAlign.center,
+            )
+          ],
         ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAirQualityCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'คุณภาพอากาศ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'รายละเอียด',
-                style: TextStyle(fontSize: 14, color: Colors.green[400]),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.green[400],
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  '75',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
+      );
+    } else if (weatherProvider.currentWeather != null) {
+      return SafeArea(
+        child: Column(
+          children: [
+            MainAppBar(
+              weatherProvider: weatherProvider,
+              pollutionProvider: pollutionProvider,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'ปานกลาง',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => WeatherDetailPage(
+                                      weather: weatherProvider.currentWeather!,
+                                      forecast: weatherProvider.forecastWeather!,
+                                      hourly: weatherProvider.hourlyWeather,
+                                    )));
+                      },
+                      child: buildWeatherCard(
+                          weather: weatherProvider.currentWeather!),
                     ),
-                    Text(
-                      'คุณภาพอากาศเหมาะสมสำหรับคนทั่วไป',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    const SizedBox(height: 16),
+                    //คุณภาพอากาศ
+                    Airqualitycard(
+                      currentPollution: pollutionProvider.currentPollution,
+                      advicemodel: pollutionProvider.adviceModel,
                     ),
+                    const SizedBox(height: 16),
+                    //คำแนพนำสุขภาพ
+                    _buildHealthCard(pollutionProvider.adviceModel!),
+                    const SizedBox(height: 16),
+       
+
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildAirQualityItem('PM2.5', '25', 'μg/m³'),
-              _buildAirQualityItem('PM10', '38', 'μg/m³'),
-              _buildAirQualityItem('SO₂', '42', 'ppb'),
-              _buildAirQualityItem('NO₂', '15', 'ppb'),
-            ],
-          ),
-        ],
-      ),
-    );
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Center(
+        child: Text("No weather data available."),
+      );
+    }
   }
 
-  Widget _buildAirQualityItem(String label, String value, String unit) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        Text(unit, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-      ],
-    );
-  }
-
-  Widget _buildHealthCard() {
+  Widget _buildHealthCard(Advicemodel advice) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -281,13 +126,13 @@ class _MainscreenState extends State<Mainscreen> {
           const SizedBox(height: 16),
           _buildHealthTip(
             Icons.check_circle,
-            'เหมาะสมสำหรับกิจกรรมกลางแจ้งทั่วไป',
+             advice.generalAdvice,
             Colors.green,
           ),
           const SizedBox(height: 12),
           _buildHealthTip(
             Icons.warning_amber_rounded,
-            'กลุ่มเสี่ยง เช่น ผู้ป่วยโรคระบบทางเดินหายใจควรหลีกเลี่ยงการทำกิจกรรมกลางแจ้งที่ใช้แรงมาก',
+             advice.sensitiveAdvice,
             Colors.amber,
           ),
         ],
@@ -306,23 +151,7 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-  Widget _buildFutureForecastButton() {
-    return ElevatedButton(
-      onPressed: () {
-        //page route ไปที่ forecast page
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ForecastPage()));
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        minimumSize: const Size(double.infinity, 54),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      child: const Text(
-        'สภาพอากาศในอนาคต',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+ 
 }
+
+
