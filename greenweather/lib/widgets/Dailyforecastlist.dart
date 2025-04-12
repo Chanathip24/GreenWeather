@@ -1,68 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/weatherModel.dart';
+import 'package:intl/intl.dart';
 
 class DailyForecastList extends StatelessWidget {
-  const DailyForecastList({Key? key}) : super(key: key);
+  
+  final List<Weatherforecastmodel> forecast; //5 day na
+  const DailyForecastList({super.key,required this.forecast});
+
 
   @override
+  
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> dailyData = [
-      {
-        'day': 'Today',
-        'date': '10 Mar',
-        'minTemp': 25,
-        'maxTemp': 32,
-        'icon': Icons.wb_sunny
-      },
-      {
-        'day': 'Tue',
-        'date': '11 Mar',
-        'minTemp': 24,
-        'maxTemp': 31,
-        'icon': Icons.wb_sunny
-      },
-      {
-        'day': 'Wed',
-        'date': '12 Mar',
-        'minTemp': 25,
-        'maxTemp': 32,
-        'icon': Icons.wb_sunny
-      },
-      {
-        'day': 'Thu',
-        'date': '13 Mar',
-        'minTemp': 24,
-        'maxTemp': 30,
-        'icon': Icons.wb_cloudy
-      },
-      {
-        'day': 'Fri',
-        'date': '14 Mar',
-        'minTemp': 23,
-        'maxTemp': 29,
-        'icon': Icons.grain
-      },
-      {
-        'day': 'Sat',
-        'date': '15 Mar',
-        'minTemp': 22,
-        'maxTemp': 28,
-        'icon': Icons.water
-      },
-      {
-        'day': 'Sun',
-        'date': '16 Mar',
-        'minTemp': 24,
-        'maxTemp': 30,
-        'icon': Icons.wb_cloudy
-      },
-    ];
+    final dayFormatter = DateFormat('EE');
+    final dateFormatter = DateFormat('MMM, d');
+    if (forecast.isEmpty) {
+      return const Center(
+        child: Text(
+          'No forecast data available',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
 
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: dailyData.length,
+      itemCount: forecast.length,
       itemBuilder: (context, index) {
-        final item = dailyData[index];
+        final item = forecast[index];
         final bool isToday = index == 0;
 
         return Container(
@@ -93,7 +58,7 @@ class DailyForecastList extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['day'],
+                      dayFormatter.format(item.dateTime),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
@@ -102,7 +67,7 @@ class DailyForecastList extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      item['date'],
+                      dateFormatter.format(item.dateTime),
                       style: TextStyle(
                         fontSize: 14,
                         color: const Color(0xFF2E7D32).withOpacity(0.7),
@@ -112,20 +77,20 @@ class DailyForecastList extends StatelessWidget {
                 ),
               ),
               Icon(
-                item['icon'],
+                item.iconData,
                 size: 28,
-                color: item['icon'] == Icons.wb_sunny
+                color: item.iconData == Icons.wb_sunny
                     ? const Color(0xFFFFB74D) // Amber
-                    : item['icon'] == Icons.wb_cloudy
+                    : item.iconData == Icons.wb_cloudy
                         ? const Color(0xFF78909C) // Blue-grey
-                        : item['icon'] == Icons.grain
+                        : item.iconData == Icons.grain
                             ? const Color(0xFF4FC3F7) // Light blue
                             : const Color(0xFF2196F3), // Blue
               ),
               Row(
                 children: [
                   Text(
-                    '${item['minTemp']}°',
+                    '${item.temp_min.toInt()}°',
                     style: TextStyle(
                       fontSize: 16,
                       color: const Color(0xFF2E7D32).withOpacity(0.7),
@@ -146,7 +111,7 @@ class DailyForecastList extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${item['maxTemp']}°',
+                    '${item.temp_max.toInt()}°',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

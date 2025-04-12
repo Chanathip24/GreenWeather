@@ -62,7 +62,6 @@ export const login = async (
         message: "Login Successful",
       });
   } catch (error) {
-    console.log(error)
     next(error);
   }
 };

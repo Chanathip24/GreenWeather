@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/model/weatherModel.dart';
-import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/widgets/Dailyforecastlist.dart';
 import 'package:greenweather/widgets/GetWeatherIcon.dart';
 import 'package:greenweather/widgets/Hourlyforecastlist.dart';
@@ -9,7 +8,9 @@ import 'package:intl/intl.dart';
 
 class WeatherDetailPage extends StatelessWidget {
   final WeatherModel weather;
-  const WeatherDetailPage({super.key, required this.weather});
+  final List<Weatherforecastmodel>? forecast; //7 day na
+  final List<Weatherhourlymodel>? hourly; //24 hours na
+  const WeatherDetailPage({super.key, required this.weather,this.forecast,this.hourly});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class WeatherDetailPage extends StatelessWidget {
                 ),
               ),
               floating: true,
-              pinned: false,
+              pinned: true,
               expandedHeight: 0,
             ),
             SliverToBoxAdapter(
@@ -43,7 +44,7 @@ class WeatherDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      weather.cityName,
+                      weather.cityName ?? 'Unknown Location',
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -104,6 +105,14 @@ class WeatherDetailPage extends StatelessWidget {
                                 ],
                               ),
                               Text(
+                                weather.description,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF2E7D32), // Dark green
+                                ),
+                              ),
+                              Text(
                                 weather.main,
                                 style: TextStyle(
                                   fontSize: 24,
@@ -140,7 +149,7 @@ class WeatherDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const HourlyForecastList(),
+                    HourlyForecastList(hourlyWeather: hourly ?? [],),
                     const SizedBox(height: 24),
                     const Text(
                       '7-Day Forecast',
@@ -151,7 +160,7 @@ class WeatherDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const DailyForecastList(),
+                    DailyForecastList(forecast: forecast!,),
                     const SizedBox(height: 30),
                   ],
                 ),

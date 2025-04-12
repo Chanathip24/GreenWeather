@@ -9,7 +9,7 @@ dotenv.config();
 const JWT_KEY = process.env.JWT_KEY || "JWT_KEY";
 
 export const generateToken = (user: UserResponse): tokenOutput => {
-  const refreshToken = jwt.sign(user, JWT_KEY, { expiresIn: "60d" });
+  const refreshToken = jwt.sign(user, JWT_KEY, { expiresIn: "90d" });
   const accessToken = jwt.sign(user, JWT_KEY, { expiresIn: "15m" });
   return { accessToken, refreshToken };
 };

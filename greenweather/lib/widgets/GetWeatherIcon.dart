@@ -7,15 +7,15 @@ class Getweathericon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, IconData> weatherIcons = {
-      'clear': Icons.wb_sunny_outlined,
-      'clouds': Icons.cloud_outlined,
-      'rain': Icons.water_drop_outlined,
-      'snow': Icons.ac_unit_outlined,
-      'thunderstorm': Icons.bolt_outlined,
-      'drizzle': Icons.grain_outlined,
-      'mist': Icons.cloud_outlined,
-      'fog': Icons.cloud_outlined,
-      'haze': Icons.cloud_outlined,
+      'clear': Icons.wb_sunny,
+      'clouds': Icons.cloud,
+      'rain': Icons.water_drop,
+      'snow': Icons.ac_unit,
+      'thunderstorm': Icons.bolt,
+      'drizzle': Icons.grain,
+      'mist': Icons.cloud,
+      'fog': Icons.cloud,
+      'haze': Icons.cloud,
     };
 
     final Map<String, Color> weatherColors = {

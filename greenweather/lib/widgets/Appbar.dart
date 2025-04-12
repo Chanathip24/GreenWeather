@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 import 'package:provider/provider.dart';
 
 class MainAppBar extends StatelessWidget {
   final WeatherProvider? weatherProvider;
-
-  const MainAppBar({super.key, this.weatherProvider});
+  final PollutionProvider? pollutionProvider;
+  const MainAppBar({super.key, this.weatherProvider,this.pollutionProvider});
 
   @override
   Widget build(BuildContext context) {
     // Get the provider without using Consumer
     final provinceProvider = Provider.of<ProvinceProvider>(context);
+    
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -37,6 +39,7 @@ class MainAppBar extends StatelessWidget {
 
                     if (weatherProvider != null) {
                       await weatherProvider!.fetchWeatherData(value);
+                      await pollutionProvider!.fetchPollution(value);
                     }
                   }
                 },

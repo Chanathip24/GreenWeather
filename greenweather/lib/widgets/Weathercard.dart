@@ -11,7 +11,7 @@ class buildWeatherCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormatter = DateFormat('EEEE, MMM d, yyyy');
-    final timeFormatter = DateFormat('h:mm a');
+    // final timeFormatter = DateFormat('h:mm a');
     return Container(
       decoration: BoxDecoration(
         color: Colors.green[50],
