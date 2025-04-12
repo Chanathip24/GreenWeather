@@ -1,12 +1,37 @@
-
 # GreenWeather
 
-## Description
 
-This project is a weather forecast application built using Flutter for Frontend. Backend we using bun as a runtime and we use Express as a backend framework.
+![Flutter](https://img.shields.io/badge/Flutter-3.0-blue?logo=flutter)
+![Express](https://img.shields.io/badge/Express.js-Backend-black?logo=express)
+![Bun](https://img.shields.io/badge/Bun-JS_Runner-yellow?logo=bun)
+![License](https://img.shields.io/github/license/Chanathip24/GreenWeather)
 
-## Setup and Installation Frontend
-Follow these steps to set up the project locally:
+## 🌱 Description
+
+GreenWeather is a weather forecast application built using Flutter for the frontend ,Bun (with Express.js) for the backend and Mysql for database. The application provides weather updates based on APIs and also allows users to report real-time weather conditions in their area to improve forecast accuracy.
+
+Users who report weather data can earn points, compete on a leaderboard, and redeem rewards such as coupons or other benefits.
+
+## 🚀 Features
+
+- Real-time weather data from external APIs
+- User-generated weather reports to enhance data accuracy
+- Points system for user reports
+- Leaderboard ranking users by contribution points
+- Reward system with redeemable coupons
+
+## 🧑‍💻 Tech Stack
+
+| Layer     | Technology          |
+|-----------|---------------------|
+| Frontend  | Flutter             |
+| Backend   | Bun + Express       |
+| Database  | MySQL   |
+| API       | OpenWeatherMap, WAQI |
+
+## 📦 Setup and Installation - Frontend
+
+Follow these steps to set up the Flutter frontend locally:
 
 1. **Clone the repository**
 
@@ -17,70 +42,67 @@ Follow these steps to set up the project locally:
 
 2. **Install dependencies**
 
-
    ```bash
    flutter pub get
    ```
-3. Running Application on your emulator.
 
-## Setup and Installation Backend
-1. **Go to server folder**
+3. **Create a `.env` file**
+
+   Inside the root folder of the project (e.g., `greenweather/`), create a new `.env` file and add:
+
+   ```env
+   API_URL=your-backend-route
+   ```
+
+   Replace `your-backend-route` with your actual backend server URL.
+
+4. **Run the application** on your emulator or device.
+
+## Setup and Installation - Backend
+
+1. **Navigate to the server folder**
 
    ```bash
    cd server
    ```
-1. **Install dependencies**
+
+2. **Install dependencies**
 
    ```bash
    bun install
    ```
 
+3. **Create a `.env` file**
 
-## Environment Variables
-
-The project uses environment variables to manage sensitive data and configuration settings. To set up your environment variables, follow these steps:
-
-1. **Create a `.env` file**
-
-   Inside the root folder of the project (e.g., `server/`), create a new `.env` file. You can do this manually or by copying the template provided below.
-
-2. **Add environment variables**
-
-   Add the following configuration to the `.env` file:
+   Inside `server/`, create a `.env` file and add the following configuration:
 
    ```env
    DATABASE_URL=your-database-connection-url-here
    PORT=3000
    SALT_ROUND=10
    JWT_KEY=your-secret-jwt-key-here
+   WEATHER_API_KEY=your-api-key-OpenweathermapAPI
+   WAQI_KEY=your-api-key-WAQIAPI
    ```
 
-   - **`DATABASE_URL`**: The URL to your database. Replace with your actual database connection URL (e.g., PostgreSQL, MySQL, etc.).
-   - **`PORT`**: The port number your server will run on (default is `3000`).
-   - **`SALT_ROUND`**: The number of rounds for bcrypt hashing (default is `10`, but you can adjust as needed).
-   - **`JWT_KEY`**: The secret key used for signing JWT tokens. Make sure to use a secure, random value.
+   Replace the placeholders with your actual configuration values.
 
-3. **Example `.env` file**:
-
-   ```env
-   DATABASE_URL=mysql://user:password@localhost:3306/mydatabase
-   PORT=3000
-   SALT_ROUND=12
-   JWT_KEY=your-secure-random-jwt-key
-   ```
-
-
-## Running the Application
-
-1. **Start the development server**
-
-   Run the following command to start the server:
+4. **Start the backend server**
 
    ```bash
    bun run dev
    ```
 
+   The backend will now be running on the specified `PORT`.
 
-   The application should now be running on the specified `PORT`.
+## Example `.env` file
 
+```env
+DATABASE_URL=mysql://user:password@localhost:3306/mydatabase
+PORT=3000
+SALT_ROUND=12
+JWT_KEY=your-secure-random-jwt-key
+WEATHER_API_KEY=your-api-key-OpenweathermapAPI
+WAQI_KEY=your-api-key-WAQIAPI
+```
 
