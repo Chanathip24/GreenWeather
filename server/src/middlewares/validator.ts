@@ -3,9 +3,15 @@ import { body, type ValidationChain } from "express-validator";
 export const registerValidator: ValidationChain[] = [
   body("email")
     .isEmail()
-    .withMessage("Please enter a valid email")
-    .normalizeEmail(),
-  body("name")
+    .withMessage("Please enter a valid email"),
+    // .normalizeEmail(),
+  body("fname")
+    .notEmpty()
+    .withMessage("Please provided a name")
+    .isString()
+    .withMessage("Name must be a String")
+    .escape(),
+  body("lname")
     .notEmpty()
     .withMessage("Please provided a name")
     .isString()

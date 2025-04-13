@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
+import 'package:greenweather/screens/loginPage.dart';
+import 'package:provider/provider.dart';
 
 class AirQualityForm extends StatefulWidget {
   const AirQualityForm({super.key});
@@ -64,6 +67,10 @@ class _AirQualityFormState extends State<AirQualityForm> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationProvider>(context);
+    if (!authProvider.isAuthenticate) {
+      return LoginPage();
+    }
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(

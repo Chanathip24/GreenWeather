@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/userModel.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
+import 'package:greenweather/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  AuthenticationProvider authProvider;
+  RegisterPage({required this.authProvider, Key? key}) : super(key: key);
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _nameController = TextEditingController();
+  final _fnameController = TextEditingController();
+  final _lnameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _acceptTerms = true;
+  bool _acceptTerms = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _fnameController.dispose();
+    _lnameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -103,12 +110,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // Full Name field
                 _buildInputField(
-                  label: 'Full Name',
-                  hintText: 'ชื่อ-นามสกุล',
-                  controller: _nameController,
+                  label: 'Firstname',
+                  hintText: 'ชื่อจริง',
+                  controller: _fnameController,
+                  icon: Icons.person_outline,
+                ),
+                // Full Name field
+                const SizedBox(height: 16),
+
+                _buildInputField(
+                  label: 'Lastname',
+                  hintText: 'ชื่อเล่น',
+                  controller: _lnameController,
                   icon: Icons.person_outline,
                 ),
                 const SizedBox(height: 16),
@@ -182,7 +196,59 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 // Register button
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    if (_fnameController.text.isEmpty ||
+                        _lnameController.text.isEmpty ||
+                        _emailController.text.isEmpty ||
+                        _passwordController.text.isEmpty ||
+                        _confirmPasswordController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('กรุณากรอกข้อมูลให้ครบถ้วน'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    String? error = AuthService.validatePassword(
+                        _passwordController.text,
+                        _confirmPasswordController.text,
+                        _acceptTerms);
+                    if (error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(error),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    await widget.authProvider.register(
+                      Usermodel(
+                        fname: _fnameController.text,
+                        lname: _lnameController.text,
+                        email: _emailController.text,
+                        password: _passwordController.text,
+                      ),
+                    );
+                    if (widget.authProvider.isAuthenticate) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('สมัครสมาชิกสำเร็จ'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(widget.authProvider.error!),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
@@ -192,13 +258,17 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     elevation: 0,
                   ),
-                  child: Text(
-                    'สมัครสมาชิก',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: widget.authProvider.isLoading
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Text(
+                          'สมัครสมาชิก',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 24),
 

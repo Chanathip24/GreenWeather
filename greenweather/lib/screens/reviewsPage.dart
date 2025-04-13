@@ -1,71 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/weatherModel.dart';
+import 'package:greenweather/providers/province_provider.dart';
+import 'package:greenweather/providers/weather_provider.dart';
+import 'package:greenweather/screens/submitreportPage.dart';
 import 'package:greenweather/widgets/Appbar.dart';
+import 'package:provider/provider.dart';
 
 class ReviewPage extends StatelessWidget {
   const ReviewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final weatherProvider = Provider.of<WeatherProvider>(context);
+    final provinceProvider = Provider.of<ProvinceProvider>(context);
+    WeatherModel? currentWeather = weatherProvider.currentWeather ?? null;
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             //appbar
             MainAppBar(),
-            // Header section
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              color: const Color(0xFFEFF8EF),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'ส่งรีวิวภาพจากทริปของคุณ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'รับ 5-10 แต้ม ต่อการรีวิว',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4CD964),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'รีวิวตอนนี้',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
             // Reviews section header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               alignment: Alignment.centerLeft,
               child: Row(
-                children: const [
+                children: [
                   Text(
                     'รีวิวยอดนิยมใน ',
                     style: TextStyle(
@@ -74,7 +35,7 @@ class ReviewPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'กรุงเทพมหานคร',
+                    provinceProvider.selectProvince ?? 'จังหวัด',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

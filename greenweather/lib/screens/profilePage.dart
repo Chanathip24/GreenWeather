@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/userModel.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/screens/rewardPage.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 //model
 import '../model/activityModel.dart';
 
 class GreenUserProfilePage extends StatefulWidget {
-  const GreenUserProfilePage({super.key});
+  final Usermodel user;
+  const GreenUserProfilePage({super.key, required this.user});
 
   @override
   State<GreenUserProfilePage> createState() => _GreenUserProfilePageState();
@@ -15,6 +19,7 @@ class GreenUserProfilePage extends StatefulWidget {
 class _GreenUserProfilePageState extends State<GreenUserProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
   final List<ActivityItem> _activities = [
     ActivityItem(
       title: 'รางวัลพลังงาน',
@@ -57,17 +62,17 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final authProvider = Provider.of<AuthenticationProvider>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: Colors.green),
+        //   onPressed: () {
+        //     Navigator.pop(context);
+        //   },
+        // ),
         title: Text(
           'โปรไฟล์ของฉัน',
           style: TextStyle(
@@ -105,15 +110,15 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'คุณ Green User',
+                              Text(
+                                'คุณ ${widget.user.fname}',
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                '@greenUser',
+                                "${widget.user.email}",
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey.shade600,
@@ -139,7 +144,15 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                         ),
                         IconButton(
                           icon: const Icon(Icons.edit_outlined),
-                          onPressed: () {},
+                          onPressed: () async {
+                            await authProvider.logout();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('ออกจากระบบเรียบร้อยแล้ว'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
                           tooltip: 'Edit Profile',
                         ),
                       ],
@@ -166,7 +179,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                             const Icon(Icons.eco, color: Colors.green),
                             const SizedBox(width: 8),
                             Text(
-                              '1,240 แต้ม',
+                              '${widget.user.points} แต้ม',
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,

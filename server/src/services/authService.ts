@@ -9,7 +9,11 @@ import type {
   RegisterInput,
   UserResponse,
 } from "../types/userType";
-import type { tokenOutput, userWithToken } from "../types/tokenType";
+import type {
+  tokenInput,
+  tokenOutput,
+  userWithToken,
+} from "../types/tokenType";
 import { ApiError, httpStatus } from "../utils/Error";
 
 //map user
@@ -17,7 +21,8 @@ const mapUserResponse = (data: IUser): UserResponse => {
   return {
     id: data.id,
     email: data.email,
-    name: data.name,
+    fname: data.fname,
+    lname: data.lname,
     points: data.points,
   };
 };
@@ -39,7 +44,8 @@ export const registerService = async (
 
   //insert to table
   const newUser: InsertUser = {
-    name: data.name,
+    fname: data.fname,
+    lname: data.lname,
     email: data.email,
     password: hashedpassword,
   };
@@ -54,6 +60,7 @@ export const registerService = async (
   });
   return { token: { accessToken, refreshToken }, user: mapUserResponse(user) };
 };
+
 //login service
 export const loginService = async (
   data: LoginInput
@@ -86,48 +93,29 @@ export const loginService = async (
   return { token: { accessToken, refreshToken }, user: User };
 };
 
+export const refreshTokenService = async (data: tokenInput): Promise<tokenOutput> => {
+  const user: UserResponse | null = await userModel.getUserByRefreshToken(data);
 
-//refresh token service
-// router.post("/refresh", async (req: Request, res: Response): Promise<void> => {
-//   const { authorization } = req.headers;
-//   const token: undefined | string = authorization?.split(" ")[1];
-//   if (!token) {
-//     res.status(401).json({ message: "Unauthorized" });
-//     return;
-//   }
-//   let decoded: any;
-//   try {
-//     decoded = jwt.verify(token, process.env.JWT_KEY as string);
-//   } catch (error) {
-//     res.status(401).json({ message: "Unauthorized" });
-//     return;
-//   }
+  if (!user) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized");
+  }
 
-//   //return new access token
-//   // Check if the token is expired
-//   const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-//   if (decoded.exp && decoded.exp < currentTime) {
-//     res.status(401).json({ message: "Token is expired" });
-//   }
+  //generate new token
+  const { accessToken, refreshToken } = generateToken(user);
 
-//   //new token
-//   const accessToken = jwt.sign(
-//     {
-//       userId: decoded.id,
-//       email: decoded.email,
-//       name: decoded.name,
-//       points: decoded.points,
-//     },
-//     process.env.JWT_KEY as string,
-//     { expiresIn: "15m" }
-//   );
-//   //find user that contain token first
-  
-//   //return new token
-//   res.status(200).json({
-//     status: "success",
-//     message: "Refresh token successfully",
-//     data: { decoded, accessToken },
-//   });
-//   return;
-// });
+  //update refresh token in db
+  await userModel.updateUserRefreshToken({
+    id: user.id,
+    refreshToken: refreshToken,
+  });
+  return { accessToken, refreshToken };
+};
+
+export const logoutService = async ( id : string): Promise<IUser> => {
+  //remove refresh token from db
+  const response: IUser = await userModel.updateUserRefreshToken({
+    id: id,
+    refreshToken: null,
+  });
+  return response;
+}

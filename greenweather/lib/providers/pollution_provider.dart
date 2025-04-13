@@ -14,7 +14,6 @@ class PollutionProvider extends ChangeNotifier {
   String? get error => _error;
   Advicemodel? get adviceModel => _adviceModel;
 
-
   final PollutionService _pollutionService = PollutionService();
 
   //get advice
@@ -108,18 +107,17 @@ class PollutionProvider extends ChangeNotifier {
     try {
       final pollutionData =
           await _pollutionService.getPollutionbycity(location);
-      //current pollution 
+      //current pollution
       _currentPollution = pollutionData;
       //map advice
       final adviceMap = getAirQualityInfo(_currentPollution!.aqi);
-      
+
       //create model
       _adviceModel = Advicemodel.fromJson(adviceMap);
       _isLoading = false;
 
       notifyListeners();
     } catch (e) {
-      print("$e");
       _error = e.toString();
     } finally {
       _isLoading = false;

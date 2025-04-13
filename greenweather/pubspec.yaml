@@ -38,6 +38,7 @@ dependencies:
   dio: ^5.8.0+1
   provider: ^6.1.4
   flutter_dotenv: ^5.0.2
+  shared_preferences: ^2.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

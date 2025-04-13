@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/userModel.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/screens/profilePage.dart';
 import 'package:greenweather/screens/registerPage.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,6 +17,8 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
 
+  //provider
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -23,6 +28,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationProvider>(context);
+    if (authProvider.isAuthenticate) {
+      return GreenUserProfilePage(
+        user: authProvider.userdata!,
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -171,11 +182,38 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 30),
                 // Login button
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => GreenUserProfilePage()));
+                  onPressed: () async {
+                    if (_emailController.text.trim().isEmpty ||
+                        _passwordController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('กรุณากรอกอีเมลและรหัสผ่าน'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+                    await authProvider.login(Usermodel(
+                      email: _emailController.text.trim(),
+                      password: _passwordController.text.trim(),
+                    ));
+
+                    if (authProvider.isAuthenticate) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('เข้าสู่ระบบสำเร็จ'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -186,13 +224,17 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     elevation: 0,
                   ),
-                  child: Text(
-                    'เข้าสู่ระบบ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: authProvider.isLoading
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Text(
+                          'เข้าสู่ระบบ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 16),
                 //สมัครสมาชิก
@@ -201,7 +243,9 @@ class _LoginPageState extends State<LoginPage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => RegisterPage()));
+                            builder: (context) => RegisterPage(
+                                  authProvider: authProvider,
+                                )));
                   },
                   child: Text(
                     'สมัครสมาชิก',

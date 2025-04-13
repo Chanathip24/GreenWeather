@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { ApiError, httpStatus } from "../utils/Error";
 
 dotenv.config();
 const JWT_KEY = process.env.JWT_KEY || "JWT_KEY";
@@ -15,16 +16,16 @@ declare global {
 
 export const verifyUser = (req: Request, res: Response, next: NextFunction) => {
   const Bearertoken = req.headers["authorization"];
-
+  
   if (!Bearertoken) {
-    res.status(401).json({ msg: "No token provided" });
-    return;
+    throw new ApiError(httpStatus.UNAUTHORIZED, "No token provided");
   }
 
   const token: string = Bearertoken.split(" ")[1];
+
   if (!token) {
     res.status(401).json({ msg: "Invalid token format" });
-    return;
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid token format");
   }
 
   try {
@@ -32,8 +33,7 @@ export const verifyUser = (req: Request, res: Response, next: NextFunction) => {
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(500).json(error);
-    return;
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid token");
   }
 };
 

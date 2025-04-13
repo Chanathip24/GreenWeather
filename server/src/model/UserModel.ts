@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import type { InsertUser, IUser, UserResponse } from "../types/userType";
-import type { userUpdateRefreshToken } from "../types/tokenType";
+import type { tokenInput, userUpdateRefreshToken } from "../types/tokenType";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,8 @@ class Usermodel {
       select: {
         id: true,
         email: true,
-        name: true,
+        fname: true,
+        lname: true,
         points: true,
       },
     });
@@ -23,7 +24,8 @@ class Usermodel {
       where: { email: email },
       select: {
         id: true,
-        name: true,
+        fname: true,
+        lname: true,
         points: true,
         email: true,
         password: true,
@@ -50,7 +52,8 @@ class Usermodel {
       where: { id: user.id },
       data: {
         email: user.email,
-        name: user.name,
+        fname: user.fname,
+        lname: user.lname,
         password: user.password,
         points: user.points,
       },
@@ -60,9 +63,25 @@ class Usermodel {
   //register
   async createUser(user: InsertUser): Promise<IUser> {
     return await prisma.user.create({
-      data: { name: user.name, email: user.email, password: user.password },
+      data: { fname: user.fname,lname : user.lname, email: user.email, password: user.password },
     });
   }
+
+  //get user by refreshtoken
+  async getUserByRefreshToken( data : tokenInput): Promise<UserResponse | null> {
+    return await prisma.user.findFirst({
+      where: { refreshToken: data.refreshToken },
+      select: {
+        id: true,
+        fname: true,
+        lname: true,
+        points: true,
+        email: true,
+      },
+    });
+  }
+
 }
+
 
 export const userModel = new Usermodel();

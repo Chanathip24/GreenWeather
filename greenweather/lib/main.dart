@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 //lib
 import 'package:flutter_dotenv/flutter_dotenv.dart'; //env
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
@@ -22,7 +23,8 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => WeatherProvider()),
         ChangeNotifierProvider(create: (context) => ProvinceProvider()),
-        ChangeNotifierProvider(create: (context) => PollutionProvider())
+        ChangeNotifierProvider(create: (context) => PollutionProvider()),
+        ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
       ],
       child: const MyApp(),
     ),

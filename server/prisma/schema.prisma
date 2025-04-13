@@ -12,57 +12,62 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
+enum PointType {
+  ADD
+  SUBTRACT
+}
 model User {
-  id        String     @id @default(uuid())
-  email     String  @unique
-  password  String
-  name      String
-  points    Int     @default(0) // Points earned from reviews
-  createdAt DateTime @default(now())
-  updateAt DateTime? @updatedAt
-  refreshToken String? @db.Text
-  resetPasswordToken String? @db.Text
-  reviews   Review[]
-  redemptions Redemption[]
-  pointTransactions PointTransaction[] 
+  id                 String             @id @default(uuid())
+  email              String             @unique
+  password           String
+  fname              String             @default("Unknownfname")
+  lname              String             @default("Unknownlname")
+  points             Int                @default(0) // Points earned from reviews
+  createdAt          DateTime           @default(now())
+  updateAt           DateTime?          @updatedAt
+  refreshToken       String?            @db.Text
+  resetPasswordToken String?            @db.Text
+  reviews            Review[]
+  redemptions        Redemption[]
+  pointTransactions  PointTransaction[]
 }
 
 model Review {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    String
-  user      User    @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   location  String
-  rating    Int @default(0)
-  dislike Int @default(0)     // 1-5 stars for air quality
+  rating    Int      @default(0)
+  dislike   Int      @default(0) // 1-5 stars for air quality
   comment   String?
   imageUrl  String?
   createdAt DateTime @default(now())
 }
 
 model PointTransaction {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    String
-  user      User    @relation(fields: [userId], references: [id])  
-  points    Int     // Points added or subtracted
-  reason    String  // "Review Submitted", "Reward Redeemed", etc.
+  user      User     @relation(fields: [userId], references: [id])
+  points    Int 
+  type      PointType
+  reason    String // "Review Submitted", "Reward Redeemed", etc.
   createdAt DateTime @default(now())
 }
 
 model Reward {
-  id        Int     @id @default(autoincrement())
-  name      String
+  id          Int          @id @default(autoincrement())
+  name        String
   description String?
-  cost      Int     // Cost in points
-  createdAt DateTime @default(now())
+  cost        Int // Cost in points
+  createdAt   DateTime     @default(now())
   redemptions Redemption[]
 }
 
 model Redemption {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    String
-  user      User    @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   rewardId  Int
-  reward    Reward  @relation(fields: [rewardId], references: [id])
+  reward    Reward   @relation(fields: [rewardId], references: [id])
   createdAt DateTime @default(now())
 }
