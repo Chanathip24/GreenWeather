@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/services/auth_service.dart';
-import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   AuthenticationProvider authProvider;

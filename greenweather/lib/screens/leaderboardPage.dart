@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
-import 'package:greenweather/screens/submitreportPage.dart';
 import 'package:provider/provider.dart';
 
 // The LeaderboardScreen class that only returns a Scaffold
 class Leaderboardpage extends StatefulWidget {
-  const Leaderboardpage({Key? key}) : super(key: key);
+  const Leaderboardpage({super.key});
 
   @override
   State<Leaderboardpage> createState() => _LeaderboardpageState();

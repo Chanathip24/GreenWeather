@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:greenweather/model/weatherModel.dart';
+
 import 'package:greenweather/providers/province_provider.dart';
-import 'package:greenweather/providers/weather_provider.dart';
-import 'package:greenweather/screens/submitreportPage.dart';
+
 import 'package:greenweather/widgets/Appbar.dart';
 import 'package:provider/provider.dart';
 
@@ -11,9 +10,8 @@ class ReviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final weatherProvider = Provider.of<WeatherProvider>(context);
     final provinceProvider = Provider.of<ProvinceProvider>(context);
-    WeatherModel? currentWeather = weatherProvider.currentWeather ?? null;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
