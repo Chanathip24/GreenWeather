@@ -29,7 +29,6 @@ export const verifyUser = (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-
     req.user = decoded;
     next();
   } catch (error) {
@@ -39,9 +38,13 @@ export const verifyUser = (req: Request, res: Response, next: NextFunction) => {
 };
 
 //protected route
-export const protectedRoute = (req: Request, res: Response,next:NextFunction) => {
-    if (!req.user) {
-      return res.status(401).json({ msg: 'User not authenticated' });
-    }
-    next()
-  };
+export const protectedRoute = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.user) {
+    return res.status(401).json({ msg: "User not authenticated" });
+  }
+  next();
+};

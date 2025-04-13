@@ -14,13 +14,15 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
+  id        String     @id @default(uuid())
   email     String  @unique
   password  String
   name      String
   points    Int     @default(0) // Points earned from reviews
   createdAt DateTime @default(now())
-  refreshToken String?
+  updateAt DateTime? @updatedAt
+  refreshToken String? @db.Text
+  resetPasswordToken String? @db.Text
   reviews   Review[]
   redemptions Redemption[]
   pointTransactions PointTransaction[] 
@@ -28,7 +30,7 @@ model User {
 
 model Review {
   id        Int     @id @default(autoincrement())
-  userId    Int
+  userId    String
   user      User    @relation(fields: [userId], references: [id])
   location  String
   rating    Int @default(0)
@@ -40,7 +42,7 @@ model Review {
 
 model PointTransaction {
   id        Int     @id @default(autoincrement())
-  userId    Int
+  userId    String
   user      User    @relation(fields: [userId], references: [id])  
   points    Int     // Points added or subtracted
   reason    String  // "Review Submitted", "Reward Redeemed", etc.
@@ -58,7 +60,7 @@ model Reward {
 
 model Redemption {
   id        Int     @id @default(autoincrement())
-  userId    Int
+  userId    String
   user      User    @relation(fields: [userId], references: [id])
   rewardId  Int
   reward    Reward  @relation(fields: [rewardId], references: [id])
