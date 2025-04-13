@@ -37,10 +37,10 @@ model Review {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   location  String
+  aqi       Int      @default(0) // Air Quality Index (AQI) value
   rating    Int      @default(0)
   dislike   Int      @default(0) // 1-5 stars for air quality
   comment   String?
-  imageUrl  String?
   createdAt DateTime @default(now())
 }
 

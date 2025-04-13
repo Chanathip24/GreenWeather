@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/services/api_service.dart';
 import 'package:greenweather/services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
   Usermodel? _userdata;

@@ -217,6 +217,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(error),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -235,6 +239,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('สมัครสมาชิกสำเร็จ'),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -258,8 +266,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     elevation: 0,
                   ),
                   child: widget.authProvider.isLoading
-                      ? CircularProgressIndicator(
-                          color: Colors.white,
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
                       : Text(
                           'สมัครสมาชิก',
