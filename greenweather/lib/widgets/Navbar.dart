@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Navbar extends StatefulWidget {
-  final int selectedindex;
+  final int selectedIndex;
   final Function(int) onItemTapped;
   const Navbar({
     super.key,
-    required this.selectedindex,
+    required this.selectedIndex,
     required this.onItemTapped,
   });
-
   @override
   State<Navbar> createState() => _NavbarState();
 }
@@ -21,11 +20,13 @@ class _NavbarState extends State<Navbar> {
 
   Widget _buildBottomNavBar() {
     return Container(
+      margin: EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withOpacity(0.4),
             blurRadius: 10,
             spreadRadius: 0,
           ),
@@ -38,13 +39,13 @@ class _NavbarState extends State<Navbar> {
           _buildBottomNavItem(
             Icons.home,
             'หน้าหลัก',
-            widget.selectedindex == 0,
+            widget.selectedIndex == 0,
             0,
           ),
           _buildBottomNavItem(
             Icons.star_border,
             'รีวิว',
-            widget.selectedindex == 1,
+            widget.selectedIndex == 1,
             1,
           ),
           Container(
@@ -52,11 +53,11 @@ class _NavbarState extends State<Navbar> {
               color: Colors.green,
               shape: BoxShape.circle,
             ),
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(13),
             child: _buildBottomNavItem(
               Icons.my_location,
               'รายงาน',
-              widget.selectedindex == 2,
+              widget.selectedIndex == 2,
               2,
               isMid: true,
             ),
@@ -64,13 +65,13 @@ class _NavbarState extends State<Navbar> {
           _buildBottomNavItem(
             Icons.emoji_events,
             'อันดับ',
-            widget.selectedindex == 3,
+            widget.selectedIndex == 3,
             3,
           ),
           _buildBottomNavItem(
             Icons.person_outline,
             'โปรไฟล์',
-            widget.selectedindex == 4,
+            widget.selectedIndex == 4,
             4,
           ),
         ],

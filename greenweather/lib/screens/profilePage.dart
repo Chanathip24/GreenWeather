@@ -81,16 +81,6 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                 final authProvider =
                     Provider.of<AuthenticationProvider>(context, listen: false);
                 await authProvider.logout();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('ออกจากระบบเรียบร้อยแล้ว'),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
               },
               child:
                   const Text('ออกจากระบบ', style: TextStyle(color: Colors.red)),

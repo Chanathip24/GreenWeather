@@ -69,7 +69,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final authProvider = Provider.of<AuthenticationProvider>(context);
     return Scaffold(
       bottomNavigationBar: Navbar(
-        selectedindex: _selectedPage,
+        selectedIndex: _selectedPage,
         onItemTapped: _onItemTapped,
       ),
       body: IndexedStack(
