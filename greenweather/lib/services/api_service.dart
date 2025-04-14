@@ -80,7 +80,7 @@ class Apiservice {
   Future<Usermodel> getUserInfo() async {
     try {
       final response = await _dio.get('$baseUrl/authentication/getuser');
-      return Usermodel.fromJson(response.data['data']);
+      return Usermodel.fromJson(response.data['data']['user']);
     } catch (e) {
       throw Exception('Failed to get user info: $e');
     }

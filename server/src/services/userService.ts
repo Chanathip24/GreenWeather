@@ -13,6 +13,14 @@ export const getAllUsers = async (includeEmail: boolean = true) => {
   return users;
 };
 
+export const getUserbyId = async (id: string) => {
+  const user = await userModel.getUserById(id);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
+}
+
 export const updateUser = async (user: Partial<IUser>) : Promise<UserResponse> => {
   if (!user.id) throw new ApiError(httpStatus.FAILED, "User id is required");
   const { id, ...rest } = user;

@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
-import { createReview, getAllReviews } from "./../services/reviewService";
+import { addLikeReview, createReview, getAllReviews } from "./../services/reviewService";
 import type { IReview } from "../types/reviewType";
+import { httpStatus } from "../utils/Error";
 
 class Reviewcontroller {
   //create review
@@ -11,6 +12,7 @@ class Reviewcontroller {
   ): Promise<void> {
     try {
       const data: IReview = req.body;
+
       const review = await createReview(data);
 
       res.status(201).json({
@@ -48,7 +50,7 @@ class Reviewcontroller {
     try {
       const location = req.query.location as string;
       if (!location) {
-        res.status(400).json({
+        res.status(httpStatus.FAILED).json({
           status: "error",
           message: "Location is required",
         });
@@ -56,10 +58,29 @@ class Reviewcontroller {
       }
       const reviews = await getAllReviews(location);
 
-      res.status(200).json({
+      res.status(httpStatus.OK).json({
         status: "success",
         message: "Fetch data successfully",
         data: reviews,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateLikeReview(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const data:Partial<IReview> = req.body
+      const review = await addLikeReview(data);
+
+      res.status(httpStatus.OK).json({
+        status: "success",
+        message: "Update review successfully",
+        data: review,
       });
     } catch (error) {
       next(error);

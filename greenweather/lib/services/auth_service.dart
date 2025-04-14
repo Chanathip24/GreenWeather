@@ -49,7 +49,7 @@ class AuthService {
         await prefs.setString(
             'refresh_token', response.data['data']['token']['refreshToken']);
         //return data
-        return Usermodel.fromJson(response.data['data']);
+        return Usermodel.fromJson(response.data['data']['user']);
       } else {
         throw Exception('Failed to login: ${response.statusCode}');
       }
@@ -72,7 +72,7 @@ class AuthService {
             'refresh_token', response.data['data']['token']['refreshToken']);
 
         //return user data
-        return Usermodel.fromJson(response.data['data']);
+        return Usermodel.fromJson(response.data['data']['user']);
       } else {
         throw Exception('Failed to register: ${response.statusCode}');
       }

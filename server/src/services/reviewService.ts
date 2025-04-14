@@ -10,6 +10,7 @@ export const createReview = async (data: IReview): Promise<IReview> => {
   if (!data) {
     throw new ApiError(httpStatus.NOT_FOUND,"No data provided.");
   }
+
   const review: IReview = await reviewModel.createReview({
     userId: data.userId,
     location: data.location,
@@ -33,3 +34,11 @@ export const getAllReviews = async (location? : string): Promise<IReview[]> => {
   }
   return reviews;
 };
+
+export const addLikeReview = async (data : Partial<IReview>): Promise<IReview> => {
+  const review: IReview = await reviewModel.updateLikeReview(data);
+  if (!review) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Review not found.");
+  }
+  return review;
+}

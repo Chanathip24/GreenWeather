@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
+import 'package:greenweather/providers/userlist_provider.dart';
 import 'package:provider/provider.dart';
 
 // The LeaderboardScreen class that only returns a Scaffold
@@ -15,30 +17,43 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
   int userRank = 5;
   int pointsToNextRank = 3000;
 
-  List<LeaderboardEntry> entries = [
-    LeaderboardEntry(
-        username: "@ecoguardian",
-        points: 5220,
-        reviews: 20,
-        photos: 14,
-        consecutiveDays: 7),
-    LeaderboardEntry(
-        username: "@ecoguardian",
-        points: 4220,
-        reviews: 20,
-        photos: 14,
-        consecutiveDays: 7),
-    LeaderboardEntry(
-        username: "@ecoguardian",
-        points: 4219,
-        reviews: 20,
-        photos: 14,
-        consecutiveDays: 7),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Fetch user data when the widget is initialized
+    Future.microtask(() async {
+      await Provider.of<UserlistProvider>(context, listen: false).getAllUser();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthenticationProvider>(context);
+    final AuthenticationProvider authProvider =
+        Provider.of<AuthenticationProvider>(context);
+    final UserlistProvider _userlistProvider =
+        Provider.of<UserlistProvider>(context);
+
+    //all user data
+    final List<Usermodel> userList = _userlistProvider.usersList;
+    int getReachRank(String id) {
+      // หาตำแหน่งใน list
+      int index = userList.indexWhere((user) => user.id == id);
+
+      // หาไม่เจอ
+      if (index == -1) return 0;
+
+      //ที่ 1
+      if (index == 0) return 0;
+
+      final Usermodel currentUser = userList[index];
+      final Usermodel userAhead = userList[index - 1];
+
+      int currentPoints = currentUser.points ?? 0;
+      int aheadPoints = userAhead.points ?? 0;
+
+      return aheadPoints - currentPoints + 1;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Weekly Leaderboard',
@@ -55,9 +70,14 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
               // User stats card
               authProvider.isAuthenticate == true
                   ? Userstatscard(
-                      userRank: userRank,
-                      userPoints: userPoints,
-                      pointsToNextRank: pointsToNextRank)
+                      userRank: userList.indexWhere(
+                              (user) => user.id == authProvider.userdata?.id) +
+                          1,
+                      userPoints: userList[userList.indexWhere(
+                              (user) => user.id == authProvider.userdata?.id)]
+                          .points!,
+                      pointsToNextRank:
+                          getReachRank(authProvider.userdata?.id ?? ""))
                   : SizedBox(),
 
               const SizedBox(height: 24),
@@ -80,14 +100,14 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
               // Leaderboard entries
               Expanded(
                 child: ListView.separated(
-                  itemCount: entries.length,
+                  itemCount: userList.length,
                   separatorBuilder: (context, index) =>
                       const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final entry = entries[index];
+                    final user = userList[index];
                     return LeaderboardTile(
                       rank: index + 1,
-                      entry: entry,
+                      user: user,
                     );
                   },
                 ),
@@ -163,10 +183,15 @@ class Userstatscard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            '$pointsToNextRank more points to reach rank #${userRank - 1}',
-            style: const TextStyle(fontSize: 14),
-          ),
+          userRank > 1
+              ? Text(
+                  '$pointsToNextRank more points to reach rank #${userRank - 1}',
+                  style: const TextStyle(fontSize: 14),
+                )
+              : Text(
+                  'You are the top participant!',
+                  style: const TextStyle(fontSize: 14),
+                ),
         ],
       ),
     );
@@ -191,12 +216,12 @@ class LeaderboardEntry {
 
 class LeaderboardTile extends StatelessWidget {
   final int rank;
-  final LeaderboardEntry entry;
+  final Usermodel user;
 
   const LeaderboardTile({
     Key? key,
     required this.rank,
-    required this.entry,
+    required this.user,
   }) : super(key: key);
 
   @override
@@ -207,7 +232,10 @@ class LeaderboardTile extends StatelessWidget {
       medalColor = Colors.amber;
     else if (rank == 2)
       medalColor = Colors.grey.shade400;
-    else if (rank == 3) medalColor = Colors.brown.shade300;
+    else if (rank == 3)
+      medalColor = Colors.brown.shade300;
+    else
+      medalColor = Colors.green.shade200;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -238,7 +266,7 @@ class LeaderboardTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.username,
+                  "@${user.fname} ${user.lname}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -247,13 +275,19 @@ class LeaderboardTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
+                    // Reviews
+                    _buildStatChip(Icons.rate_review, user.points.toString()),
+
+                    const SizedBox(width: 16),
+
+                    // Photos
+                    _buildStatChip(Icons.photo, user.points.toString()),
+
+                    const SizedBox(width: 16),
+
+                    // Consecutive Days
                     _buildStatChip(
-                        Icons.rate_review_outlined, '${entry.reviews}'),
-                    const SizedBox(width: 8),
-                    _buildStatChip(Icons.photo_outlined, '${entry.photos}'),
-                    const SizedBox(width: 8),
-                    _buildStatChip(Icons.calendar_today_outlined,
-                        '${entry.consecutiveDays} days'),
+                        Icons.calendar_today, user.points.toString()),
                   ],
                 ),
               ],
@@ -262,7 +296,7 @@ class LeaderboardTile extends StatelessWidget {
 
           // Points
           Text(
-            '${entry.points}',
+            user.points.toString(),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,

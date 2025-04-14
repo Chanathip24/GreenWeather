@@ -12,13 +12,18 @@ class Reviewmodel {
       orderBy: [{ createdAt: "desc" }],
       select: {
         id: true,
-        userId: true,
+        userId: true, //id
         location: true,
         aqi: true,
         createdAt: true,
         rating: true,
         dislike: true,
         detail: true,
+        user:{
+          select:{
+            fname:true,
+          }
+        }
       },
     });
   }
@@ -52,7 +57,7 @@ class Reviewmodel {
   }
 
   //update like and dislike
-  async updateLikeReview(data: IReview): Promise<IReview> {
+  async updateLikeReview(data: Partial<IReview>): Promise<IReview> {
     const current = await this.findReviewById(data.id as number);
     if (!current) throw new ApiError(httpStatus.NOT_FOUND, "Review not found");
 

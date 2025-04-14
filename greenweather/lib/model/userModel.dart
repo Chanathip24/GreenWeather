@@ -17,11 +17,11 @@ class Usermodel {
 
   factory Usermodel.fromJson(Map<String, dynamic> json) {
     return Usermodel(
-      id: json['user']['id'],
-      fname: json['user']['fname'],
-      lname: json['user']['lname'],
-      email: json['user']['email'],
-      points: json['user']['points'],
+      id: json['id'],
+      fname: json['fname'],
+      lname: json['lname'],
+      email: json['email'],
+      points: json['points'],
     );
   }
   //tojson
