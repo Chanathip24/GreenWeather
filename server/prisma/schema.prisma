@@ -40,7 +40,7 @@ model Review {
   aqi       Int      @default(0) // Air Quality Index (AQI) value
   rating    Int      @default(0)
   dislike   Int      @default(0) // 1-5 stars for air quality
-  comment   String?
+  detail   String?
   createdAt DateTime @default(now())
 }
 

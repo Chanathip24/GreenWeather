@@ -17,7 +17,7 @@ import type {
 import { ApiError, httpStatus } from "../utils/Error";
 
 //map user
-const mapUserResponse = (data: IUser): UserResponse => {
+export const mapUserResponse = (data: IUser): UserResponse => {
   return {
     id: data.id,
     email: data.email,

@@ -1,16 +1,23 @@
 import { PrismaClient } from "@prisma/client";
-import type { InsertUser, IUser, UserResponse } from "../types/userType";
+import type {
+  InsertUser,
+  IUser,
+  UserResponse,
+  UserWithPoints,
+} from "../types/userType";
 import type { tokenInput, userUpdateRefreshToken } from "../types/tokenType";
+import { ApiError, httpStatus } from "../utils/Error";
 
 const prisma = new PrismaClient();
 
 class Usermodel {
   //get all user
-  async getAllUser(): Promise<UserResponse[]> {
+  async getAllUser(includeEmail: boolean = true): Promise<UserResponse[]> {
     return await prisma.user.findMany({
+      orderBy: [{ points: "desc" }, { fname: "asc" }],
       select: {
         id: true,
-        email: true,
+        ...(includeEmail && { email: true }),
         fname: true,
         lname: true,
         points: true,
@@ -34,7 +41,7 @@ class Usermodel {
   }
 
   //delete user by id
-  async deleteUserByID(id: string):Promise<IUser> {
+  async deleteUserByID(id: string): Promise<IUser> {
     return await prisma.user.delete({
       where: { id: id },
     });
@@ -47,15 +54,13 @@ class Usermodel {
     });
   }
   //update userdata
-  async updateUser(user: IUser) {
+  async updateUser(user: Partial<IUser>): Promise<IUser> {
+    if (!user.id) throw new ApiError(httpStatus.FAILED, "User id is required");
+    const { id, ...rest } = user;
     return await prisma.user.update({
-      where: { id: user.id },
+      where: { id: id },
       data: {
-        email: user.email,
-        fname: user.fname,
-        lname: user.lname,
-        password: user.password,
-        points: user.points,
+        ...rest,
       },
     });
   }
@@ -63,12 +68,17 @@ class Usermodel {
   //register
   async createUser(user: InsertUser): Promise<IUser> {
     return await prisma.user.create({
-      data: { fname: user.fname,lname : user.lname, email: user.email, password: user.password },
+      data: {
+        fname: user.fname,
+        lname: user.lname,
+        email: user.email,
+        password: user.password,
+      },
     });
   }
 
   //get user by refreshtoken
-  async getUserByRefreshToken( data : tokenInput): Promise<UserResponse | null> {
+  async getUserByRefreshToken(data: tokenInput): Promise<UserResponse | null> {
     return await prisma.user.findFirst({
       where: { refreshToken: data.refreshToken },
       select: {
@@ -80,8 +90,44 @@ class Usermodel {
       },
     });
   }
+  //get user by id
+  async getUserById(id: string): Promise<UserResponse | null> {
+    return await prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        fname: true,
+        lname: true,
+        points: true,
+        email: true,
+      },
+    });
+  }
 
+  async addPoints(data: UserWithPoints): Promise<IUser> {
+    const current = await this.getUserById(data.id);
+    if (!current) throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+
+    let point: number = current.points;
+    
+    //point
+    if (!data.type)
+      throw new ApiError(httpStatus.FAILED, "Type of points is required");
+    if (data.type === "ADD") {
+      point += data.points;
+    } else if (data.type === "SUBTRACT") {
+      if (current.points < data.points) {
+        throw new ApiError(httpStatus.FAILED, "Not enough points to subtract");
+      }
+      //subtract points
+      point -= data.points;
+    } else {
+      throw new ApiError(httpStatus.FAILED, "Invalid type of points");
+    }
+
+    return await this.updateUser({id : data.id, points: point});
+  }
+  //get user by id
 }
-
 
 export const userModel = new Usermodel();
