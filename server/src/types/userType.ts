@@ -1,5 +1,3 @@
-import type { PointType } from "@prisma/client";
-
 export interface IUser {
   id: string;
   email: string;
@@ -35,7 +33,7 @@ export interface UserResponse {
   points: number;
 }
 
-
+type PointType = "ADD" | "SUBTRACT"
 //user with add or subtract points
 export interface UserWithPoints {
   id: string;

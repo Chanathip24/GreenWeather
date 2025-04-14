@@ -1,4 +1,4 @@
-import { PointType } from "@prisma/client";
+
 import { reviewModel } from "../model/Reviewmodel";
 import { userModel } from "../model/UserModel";
 import type { IReview } from "../types/reviewType";
@@ -19,7 +19,7 @@ export const createReview = async (data: IReview): Promise<IReview> => {
 
   await userModel.addPoints({
     id: data.userId,
-    type: PointType.ADD,
+    type: "ADD",
     points: rewardPoint,
   }); // Add 1 point for creating a review
 
