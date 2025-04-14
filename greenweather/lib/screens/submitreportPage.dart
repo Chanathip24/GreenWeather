@@ -4,6 +4,7 @@ import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/review_provider.dart';
+import 'package:greenweather/providers/userlist_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/screens/loginPage.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +46,10 @@ class _AirQualityFormState extends State<AirQualityForm> {
               aqi: currentPM!.aqi,
               location: selectProvince),
         );
-
+        //get transaction again
+        await authProvider.getTransaction();
+        //get all user again
+        await Provider.of<UserlistProvider>(context,listen: false).getAllUser();
         if (reviewProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

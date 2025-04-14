@@ -24,8 +24,10 @@ class ReviewProvider extends ChangeNotifier {
     try {
       _reviews = await _reviewService.getAllReviews(cityname);
       _isLoading = false;
+
       notifyListeners();
     } catch (e) {
+
       _error = e.toString();
       _isLoading = false;
       _reviews = [];

@@ -13,17 +13,26 @@ class Leaderboardpage extends StatefulWidget {
 }
 
 class _LeaderboardpageState extends State<Leaderboardpage> {
-  int userPoints = 820;
-  int userRank = 5;
-  int pointsToNextRank = 3000;
+  Usermodel? _userdata;
+  bool _isInit = false;
 
   @override
-  void initState() {
-    super.initState();
-    // Fetch user data when the widget is initialized
-    Future.microtask(() async {
-      await Provider.of<UserlistProvider>(context, listen: false).getAllUser();
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final AuthenticationProvider authenticationProvider =
+        Provider.of<AuthenticationProvider>(context);
+    final curuser = authenticationProvider.userdata;
+
+    if (curuser != null && (!_isInit || curuser != _userdata)) {
+      _userdata = curuser;
+      _isInit = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Provider.of<UserlistProvider>(context, listen: false)
+            .getAllUser();
+      });
+    }
   }
 
   @override
@@ -35,6 +44,10 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
 
     //all user data
     final List<Usermodel> userList = _userlistProvider.usersList;
+    //check if user exist
+    final userIndex =
+        userList.indexWhere((user) => user.id == authProvider.userdata?.id);
+
     int getReachRank(String id) {
       // หาตำแหน่งใน list
       int index = userList.indexWhere((user) => user.id == id);
@@ -68,14 +81,10 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
               const SizedBox(height: 16),
 
               // User stats card
-              authProvider.isAuthenticate == true
+              authProvider.isAuthenticate == true && userIndex != -1
                   ? Userstatscard(
-                      userRank: userList.indexWhere(
-                              (user) => user.id == authProvider.userdata?.id) +
-                          1,
-                      userPoints: userList[userList.indexWhere(
-                              (user) => user.id == authProvider.userdata?.id)]
-                          .points!,
+                      userRank: userIndex + 1,
+                      userPoints: userList[userIndex].points!,
                       pointsToNextRank:
                           getReachRank(authProvider.userdata?.id ?? ""))
                   : SizedBox(),

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/transactionModel.dart';
 import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/services/api_service.dart';
 import 'package:greenweather/services/auth_service.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
   Usermodel? _userdata;
+  List<Transactionmodel> _transactions = [];
+
   bool _loading = false;
   bool _isAuthenticate = false;
   String? _error;
 
   //getter
+  List<Transactionmodel> get transactions => _transactions;
   Usermodel? get userdata => _userdata;
   bool get isAuthenticate => _isAuthenticate;
   String? get error => _error;
@@ -17,11 +21,29 @@ class AuthenticationProvider extends ChangeNotifier {
 
   AuthenticationProvider() {
     _checkloginStatus();
+    getTransaction();
   }
 
   //api service
   final _apiService = Apiservice();
   final _authService = AuthService();
+
+  //get transaction
+  Future<void> getTransaction() async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _transactions = await _apiService.getTransactionHistory();
+      _loading = false;
+      notifyListeners();
+    } catch (e) {
+      _transactions = [];
+      _loading = false;
+      notifyListeners();
+    }
+  }
 
   //check login status
   Future<void> _checkloginStatus() async {

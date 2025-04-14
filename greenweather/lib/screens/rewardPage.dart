@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../model/Rewardmodel.dart';
 
 class RewardPage extends StatefulWidget {
-  const RewardPage({super.key});
+  final int points;
+  const RewardPage({super.key,required this.points});
 
   @override
   State<RewardPage> createState() => _RewardPageState();
@@ -66,29 +67,7 @@ class _RewardPageState extends State<RewardPage> {
           ),
         )
 
-        // bottomNavigationBar: BottomNavigationBar(
-        //   selectedItemColor: Colors.deepOrange,
-        //   unselectedItemColor: Colors.grey,
-        //   type: BottomNavigationBarType.fixed,
-        //   items: [
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.home),
-        //       label: 'หน้าแรก',
-        //     ),
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.favorite),
-        //       label: 'รายการโปรด',
-        //     ),
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.history),
-        //       label: 'ประวัติ',
-        //     ),
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.person),
-        //       label: 'โปรไฟล์',
-        //     ),
-        //   ],
-        // ),
+ 
         );
   }
 
@@ -112,8 +91,8 @@ class _RewardPageState extends State<RewardPage> {
               color: Colors.green.shade50,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              '320 แต้ม',
+            child: Text(
+              '${widget.points} แต้ม',
               style: TextStyle(
                 color: Colors.green,
                 fontWeight: FontWeight.bold,

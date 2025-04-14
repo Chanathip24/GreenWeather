@@ -8,6 +8,7 @@ import weatherRoute from "./routes/weatherRoute";
 import airpollutionRoute from "./routes/airpollutionRoute";
 import userRoute from "./routes/userRoute";
 import reviewsRoute from "./routes/reviewsRoute";
+import transactionRoute from "./routes/transactionRoute";
 
 //error
 import { errorHandler } from "./middlewares/errorHandler";
@@ -30,6 +31,7 @@ app.use("/weather", weatherRoute);
 app.use("/pm", airpollutionRoute);
 app.use("/user", userRoute);
 app.use("/review", reviewsRoute);
+app.use("/transaction", transactionRoute);
 
 //error handler
 app.use(errorHandler);

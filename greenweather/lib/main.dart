@@ -85,6 +85,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           Leaderboardpage(),
           GreenUserProfilePage(
             user: authProvider.userdata,
+            transaction: authProvider.transactions,
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:greenweather/model/transactionModel.dart';
 import 'package:greenweather/model/userModel.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -85,6 +86,20 @@ class Apiservice {
       throw Exception('Failed to get user info: $e');
     }
   }
+
+  Future<List<Transactionmodel>> getTransactionHistory() async {
+    try {
+      final response = await _dio.get('$baseUrl/transaction/gettransaction');
+      
+      List<Transactionmodel> transactions = (response.data['data'] as List)
+          .map((e) => Transactionmodel.fromJson(e))
+          .toList();
+      return transactions;
+    } catch (e) {
+      throw Exception('Failed to get transaction history: $e');
+    }
+  }
+  
 
   Apiservice() {
     _dio.interceptors.add(InterceptorsWrapper(
