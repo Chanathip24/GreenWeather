@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:greenweather/screens/submitreportPage.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
+import 'package:provider/provider.dart';
 
 // The LeaderboardScreen class that only returns a Scaffold
 class Leaderboardpage extends StatefulWidget {
-  const Leaderboardpage({Key? key}) : super(key: key);
+  const Leaderboardpage({super.key});
 
   @override
   State<Leaderboardpage> createState() => _LeaderboardpageState();
@@ -37,6 +38,7 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Weekly Leaderboard',
@@ -51,58 +53,12 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
               const SizedBox(height: 16),
 
               // User stats card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.teal.shade100, Colors.green.shade100],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Your Rank: #$userRank',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '$userPoints points',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: userPoints / (userPoints + pointsToNextRank),
-                        minHeight: 8,
-                        backgroundColor: Colors.white.withOpacity(0.5),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '$pointsToNextRank more points to reach rank #${userRank - 1}',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
+              authProvider.isAuthenticate == true
+                  ? Userstatscard(
+                      userRank: userRank,
+                      userPoints: userPoints,
+                      pointsToNextRank: pointsToNextRank)
+                  : SizedBox(),
 
               const SizedBox(height: 24),
 
@@ -139,25 +95,79 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
 
               const SizedBox(height: 16),
 
-              // Bottom action button
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AirQualityForm()));
-                },
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text(
-                  'Submit a Review',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-
               const SizedBox(height: 16),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class Userstatscard extends StatelessWidget {
+  const Userstatscard({
+    super.key,
+    required this.userRank,
+    required this.userPoints,
+    required this.pointsToNextRank,
+  });
+
+  final int userRank;
+  final int userPoints;
+  final int pointsToNextRank;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.teal.shade100, Colors.green.shade100],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Your Rank: #$userRank',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '$userPoints points',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: userPoints / (userPoints + pointsToNextRank),
+              minHeight: 8,
+              backgroundColor: Colors.white.withOpacity(0.5),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).primaryColor,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$pointsToNextRank more points to reach rank #${userRank - 1}',
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
       ),
     );
   }

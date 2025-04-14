@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 //lib
 import 'package:flutter_dotenv/flutter_dotenv.dart'; //env
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
@@ -10,7 +11,7 @@ import 'package:greenweather/screens/mainScreen.dart';
 import 'package:greenweather/screens/reviewsPage.dart';
 import 'package:greenweather/screens/submitreportPage.dart';
 import 'package:greenweather/screens/leaderboardPage.dart';
-import 'package:greenweather/screens/loginPage.dart';
+import 'package:greenweather/screens/profilePage.dart';
 import 'package:provider/provider.dart';
 //component
 import 'widgets/Navbar.dart';
@@ -22,7 +23,8 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => WeatherProvider()),
         ChangeNotifierProvider(create: (context) => ProvinceProvider()),
-        ChangeNotifierProvider(create: (context) => PollutionProvider())
+        ChangeNotifierProvider(create: (context) => PollutionProvider()),
+        ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
       ],
       child: const MyApp(),
     ),
@@ -64,9 +66,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationProvider>(context);
     return Scaffold(
       bottomNavigationBar: Navbar(
-        selectedindex: _selectedPage,
+        selectedIndex: _selectedPage,
         onItemTapped: _onItemTapped,
       ),
       body: IndexedStack(
@@ -76,7 +79,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
           ReviewPage(),
           AirQualityForm(),
           Leaderboardpage(),
-          LoginPage(),
+          GreenUserProfilePage(
+            user: authProvider.userdata,
+          ),
         ],
       ),
     );

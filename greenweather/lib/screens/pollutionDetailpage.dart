@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/model/adviceModel.dart';
 import 'package:greenweather/model/pollutionModel.dart';
-import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class AirQualityDetailPage extends StatelessWidget {
   final Pollutionmodel pollution;

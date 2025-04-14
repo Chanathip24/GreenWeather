@@ -2,12 +2,14 @@ export interface IUser {
   id: string;
   email: string;
   password: string;
-  name: string;
+  fname: string;
+  lname:string
   points: number;
 }
 export interface InsertUser {
   email: string;
-  name: string;
+  fname: string;
+  lname : string;
   password: string;
 }
 
@@ -19,12 +21,14 @@ export interface LoginInput {
 export interface RegisterInput {
   email: string;
   password: string;
-  name: string;
+  fname: string;
+  lname :string;
 }
 
 export interface UserResponse {
   id: string;
   email: string;
-  name: string;
+  fname: string;
+  lname : string;
   points: number;
 }

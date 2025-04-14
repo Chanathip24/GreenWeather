@@ -10,7 +10,8 @@ class WeatherDetailPage extends StatelessWidget {
   final WeatherModel weather;
   final List<Weatherforecastmodel>? forecast; //7 day na
   final List<Weatherhourlymodel>? hourly; //24 hours na
-  const WeatherDetailPage({super.key, required this.weather,this.forecast,this.hourly});
+  const WeatherDetailPage(
+      {super.key, required this.weather, this.forecast, this.hourly});
 
   @override
   Widget build(BuildContext context) {
@@ -77,59 +78,61 @@ class WeatherDetailPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    weather.temperature.toInt().toString(),
-                                    style: TextStyle(
-                                      fontSize: 72,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2E7D32), // Dark green
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: const Text(
-                                      '°C',
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      weather.temperature.toInt().toString(),
                                       style: TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 72,
                                         fontWeight: FontWeight.bold,
                                         color: Color(0xFF2E7D32), // Dark green
                                       ),
                                     ),
+                                    Container(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: const Text(
+                                        '°C',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color(0xFF2E7D32), // Dark green
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(weather.description,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF2E7D32), // Dark green
+                                    ),
+                                    softWrap: true),
+                                Text(
+                                  weather.main,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF2E7D32), // Dark green
                                   ),
-                                ],
-                              ),
-                              Text(
-                                weather.description,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2E7D32), // Dark green
                                 ),
-                              ),
-                              Text(
-                                weather.main,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2E7D32), // Dark green
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Feels like ${weather.feel_likes.toInt().toString()}°C',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: const Color(0xFF2E7D32)
+                                        .withOpacity(0.7),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Feels like ${weather.feel_likes.toInt().toString()}°C',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color:
-                                      const Color(0xFF2E7D32).withOpacity(0.7),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           Getweathericon(weatherMain: weather.main),
                         ],
@@ -149,7 +152,9 @@ class WeatherDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    HourlyForecastList(hourlyWeather: hourly ?? [],),
+                    HourlyForecastList(
+                      hourlyWeather: hourly ?? [],
+                    ),
                     const SizedBox(height: 24),
                     const Text(
                       '7-Day Forecast',
@@ -160,7 +165,9 @@ class WeatherDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    DailyForecastList(forecast: forecast!,),
+                    DailyForecastList(
+                      forecast: forecast!,
+                    ),
                     const SizedBox(height: 30),
                   ],
                 ),

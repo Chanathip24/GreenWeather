@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/model/adviceModel.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/screens/weatherDetailPage.dart';
@@ -32,11 +33,14 @@ class _MainscreenState extends State<Mainscreen> {
     //provider
     final weatherProvider = Provider.of<WeatherProvider>(context);
     final pollutionProvider = Provider.of<PollutionProvider>(context);
+    final authProvider = Provider.of<AuthenticationProvider>(context);
     if (weatherProvider.isLoading && pollutionProvider.isLoading) {
       return Center(
         child: CircularProgressIndicator(),
       );
-    } else if (weatherProvider.error != null) {
+    } else if (weatherProvider.error != null ||
+        pollutionProvider.error != null ||
+        authProvider.error != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -76,7 +80,8 @@ class _MainscreenState extends State<Mainscreen> {
                             MaterialPageRoute(
                                 builder: (context) => WeatherDetailPage(
                                       weather: weatherProvider.currentWeather!,
-                                      forecast: weatherProvider.forecastWeather!,
+                                      forecast:
+                                          weatherProvider.forecastWeather!,
                                       hourly: weatherProvider.hourlyWeather,
                                     )));
                       },
@@ -93,8 +98,6 @@ class _MainscreenState extends State<Mainscreen> {
                     //คำแนพนำสุขภาพ
                     _buildHealthCard(pollutionProvider.adviceModel!),
                     const SizedBox(height: 16),
-       
-
                   ],
                 ),
               ),
@@ -126,13 +129,13 @@ class _MainscreenState extends State<Mainscreen> {
           const SizedBox(height: 16),
           _buildHealthTip(
             Icons.check_circle,
-             advice.generalAdvice,
+            advice.generalAdvice,
             Colors.green,
           ),
           const SizedBox(height: 12),
           _buildHealthTip(
             Icons.warning_amber_rounded,
-             advice.sensitiveAdvice,
+            advice.sensitiveAdvice,
             Colors.amber,
           ),
         ],
@@ -150,8 +153,4 @@ class _MainscreenState extends State<Mainscreen> {
       ],
     );
   }
-
- 
 }
-
-

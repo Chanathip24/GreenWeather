@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:greenweather/screens/profilePage.dart';
+import 'package:greenweather/model/userModel.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/screens/registerPage.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,8 +25,39 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthenticationProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
+      // Added a minimal app bar
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Green Weather',
+          style: TextStyle(
+            color: Colors.green.shade700,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.help_outline, color: Colors.green.shade700),
+        //     onPressed: () {
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(
+        //           content: Text('ศูนย์ช่วยเหลือ'),
+        //           backgroundColor: Colors.green.shade700,
+        //           behavior: SnackBarBehavior.floating,
+        //           shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(10),
+        //           ),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -32,13 +65,17 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 50),
-                // Logo instead of gray circle
+                const SizedBox(height: 30),
+                // Improved logo design related to "Green Weather"
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: 130,
+                  height: 130,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    gradient: LinearGradient(
+                      colors: [Colors.green.shade300, Colors.green.shade700],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -48,12 +85,24 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Icon(
-                      Icons.wb_sunny,
-                      color: Colors.green,
-                      size: 64,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.wb_sunny,
+                        color: Colors.yellow,
+                        size: 64,
+                      ),
+                      Positioned(
+                        bottom: 30,
+                        right: 30,
+                        child: Icon(
+                          Icons.eco,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -61,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                 Text(
                   'Green Weather',
                   style: TextStyle(
-                    color: Colors.green,
+                    color: Colors.green.shade700,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -93,8 +142,8 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'อีเมล',
-                        prefixIcon:
-                            Icon(Icons.email_outlined, color: Colors.grey),
+                        prefixIcon: Icon(Icons.email_outlined,
+                            color: Colors.green.shade600),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -105,7 +154,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.green, width: 2),
+                          borderSide: BorderSide(
+                              color: Colors.green.shade600, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.grey.shade50,
@@ -134,8 +184,8 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: _obscureText,
                       decoration: InputDecoration(
                         hintText: 'รหัสผ่าน',
-                        prefixIcon:
-                            Icon(Icons.lock_outline, color: Colors.grey),
+                        prefixIcon: Icon(Icons.lock_outline,
+                            color: Colors.green.shade600),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureText
@@ -159,7 +209,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.green, width: 2),
+                          borderSide: BorderSide(
+                              color: Colors.green.shade600, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.grey.shade50,
@@ -168,75 +219,178 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
+                // Forgot password moved to the right side
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'ลืมรหัสผ่าน?',
+                      style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 // Login button
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => GreenUserProfilePage()));
-                  },
+                  onPressed: authProvider.isLoading
+                      ? null
+                      : () async {
+                          if (_emailController.text.trim().isEmpty ||
+                              _passwordController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('กรุณากรอกอีเมลและรหัสผ่าน'),
+                                backgroundColor: Colors.orange,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          await authProvider.login(Usermodel(
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text.trim(),
+                          ));
+
+                          if (authProvider.isAuthenticate) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('เข้าสู่ระบบสำเร็จ'),
+                                backgroundColor: Colors.green.shade700,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.green.shade700,
                     foregroundColor: Colors.white,
                     minimumSize: Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: 0,
+                    elevation: 2,
                   ),
-                  child: Text(
-                    'เข้าสู่ระบบ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: authProvider.isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          'เข้าสู่ระบบ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
-                const SizedBox(height: 16),
-                //สมัครสมาชิก
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => RegisterPage()));
-                  },
-                  child: Text(
-                    'สมัครสมาชิก',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: 14,
+                const SizedBox(height: 20),
+                // Divider with text
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.grey.shade300,
+                      ),
                     ),
-                  ),
-                ),
-                // Forgot password
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'ลืมรหัสผ่าน?',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: 14,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'หรือ',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                // Social login
+                const SizedBox(height: 20),
+                // Social login - improved
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _socialLoginButton(
                       icon: Icons.facebook,
-                      color: Colors.blue,
+                      color: Colors.blue.shade600,
                       onPressed: () {},
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 24),
                     _socialLoginButton(
                       icon: Icons.g_mobiledata_rounded,
-                      color: Colors.red,
+                      color: Colors.red.shade600,
                       onPressed: () {},
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                // Register prompt - improved
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'ยังไม่มีบัญชีผู้ใช้? ',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterPage(
+                                      authProvider: authProvider,
+                                    )));
+                      },
+                      style: TextButton.styleFrom(
+                        minimumSize: Size.zero,
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'สมัครสมาชิก',
+                        style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -257,14 +411,15 @@ class _LoginPageState extends State<LoginPage> {
       onTap: onPressed,
       borderRadius: BorderRadius.circular(30),
       child: Container(
-        width: 50,
-        height: 50,
+        width: 54,
+        height: 54,
         decoration: BoxDecoration(
-          color: color,
+          color: Colors.white,
           shape: BoxShape.circle,
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withOpacity(0.1),
               blurRadius: 8,
               spreadRadius: 1,
             ),
@@ -273,8 +428,8 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: Icon(
             icon,
-            color: Colors.white,
-            size: 28,
+            color: color,
+            size: 30,
           ),
         ),
       ),
