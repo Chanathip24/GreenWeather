@@ -3,8 +3,8 @@ export interface IReview{
     userId: string;
     location: string;
     aqi: number;
-    rating: number;
-    dislike: number;
+    rating?: number;
+    dislike?: number;
     detail: string | null;
-    createdAt: Date;
+    createdAt?: Date;
 }
