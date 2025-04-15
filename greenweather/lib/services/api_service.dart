@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:greenweather/model/reviewLikeModel.dart';
 import 'package:greenweather/model/transactionModel.dart';
 import 'package:greenweather/model/userModel.dart';
 
@@ -109,6 +110,42 @@ class Apiservice {
       return Usermodel.fromJson(response.data['data']);
     } catch (e) {
       throw Exception("Failed to update user");
+    }
+  }
+
+  //get user's like with access token
+  Future<List<Reviewlikemodel>> getUserLike() async {
+    try {
+      final response = await _dio.get('$baseUrl/review/like/all');
+      final List dataList = response.data['data'];
+
+      return dataList.map((item) => Reviewlikemodel.fromJson(item)).toList();
+    } catch (e) {
+      throw Exception("Failed to get user's like");
+    }
+  }
+
+  //delete like
+  Future<Reviewlikemodel> deleteUserLike(Reviewlikemodel review) async {
+    try {
+      final response = await _dio.delete('$baseUrl/review/like/deletelike',
+          data: review.toJson());
+
+      return Reviewlikemodel.fromJson(response.data['data']);
+    } catch (e) {
+      throw Exception("Failed to like the post.");
+    }
+  }
+
+  //save like of user to db
+  Future<Reviewlikemodel> saveUserLike(Reviewlikemodel review) async {
+    try {
+      final response = await _dio.post('$baseUrl/review/like/savelike',
+          data: review.toJson());
+      ;
+      return Reviewlikemodel.fromJson(response.data['data']);
+    } catch (e) {
+      throw Exception("Failed to like the post.");
     }
   }
 

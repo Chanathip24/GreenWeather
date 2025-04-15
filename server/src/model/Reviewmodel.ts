@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ApiError, httpStatus } from "../utils/Error";
-import type { IReview } from "../types/reviewType";
+import type { IReview, reviewLike } from "../types/reviewType";
 
 const prisma = new PrismaClient();
 
@@ -19,11 +19,11 @@ class Reviewmodel {
         rating: true,
         dislike: true,
         detail: true,
-        user:{
-          select:{
-            fname:true,
-          }
-        }
+        user: {
+          select: {
+            fname: true,
+          },
+        },
       },
     });
   }
@@ -55,7 +55,65 @@ class Reviewmodel {
       },
     });
   }
+  //save like for user
+  async saveLikeuser(data: reviewLike): Promise<reviewLike> {
+    try {
+      const response = await prisma.reviewLike.create({
+        data: {
+          userId: data.userId,
+          reviewId: data.reviewId,
+        },
+      });
+      return response;
+    } catch (error) {
+      
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to like the post."
+      );
+    }
+  }
+    //delete like for user
+    async deleteLikeuser(data: reviewLike): Promise<reviewLike> {
+      try {
+        const response = await prisma.reviewLike.delete({
+          where: {
+            userId_reviewId: {
+              userId: data.userId,
+              reviewId: data.reviewId,
+            },
+          },
+        });
+        return response;
+      } catch (error) {
+        
+        throw new ApiError(
+          httpStatus.INTERNAL_SERVER_ERROR,
+          "Failed to like the post."
+        );
+      }
+    }
 
+  //get like for user
+  async getLikeuser(id : string): Promise<reviewLike[]> {
+    try {
+      const response = await prisma.reviewLike.findMany({
+        where: { userId: id },
+        select: {
+          userId: true,
+          reviewId: true,
+        },
+      });
+      
+      return response
+    } catch (error) {
+      
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to get data"
+      );
+    }
+  }
   //update like and dislike
   async updateLikeReview(data: Partial<IReview>): Promise<IReview> {
     const current = await this.findReviewById(data.id as number);

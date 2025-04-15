@@ -8,3 +8,8 @@ export interface IReview{
     detail: string | null;
     createdAt?: Date;
 }
+
+export interface reviewLike{
+    userId : string;
+    reviewId : number;
+}

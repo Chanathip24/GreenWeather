@@ -1,6 +1,6 @@
 import { reviewModel } from "../model/Reviewmodel";
 import { userModel } from "../model/UserModel";
-import type { IReview } from "../types/reviewType";
+import type { IReview, reviewLike } from "../types/reviewType";
 import { ApiError, httpStatus } from "../utils/Error";
 import { createTransaction } from "./transactionService";
 
@@ -49,5 +49,35 @@ export const addLikeReview = async (
   if (!review) {
     throw new ApiError(httpStatus.NOT_FOUND, "Review not found.");
   }
+  return review;
+};
+
+//add user's like table
+export const adduserlike = async (data: reviewLike): Promise<reviewLike> => {
+  const response: reviewLike = await reviewModel.saveLikeuser(data);
+
+  if (!response) {
+    throw new ApiError(httpStatus.FAILED, "Failed to create review like user");
+  }
+  return response;
+};
+
+//delete user's like table
+export const removeUserlike = async (data : reviewLike): Promise<reviewLike> =>{
+  const response : reviewLike = await reviewModel.deleteLikeuser(data)
+  if (!response) {
+    throw new ApiError(httpStatus.FAILED, "Failed to create review like user");
+  }
+  return response;
+}
+//get user's like
+export const getuserlike = async (
+  data: Partial<reviewLike>
+): Promise<reviewLike[]> => {
+  if (!data.userId)
+    throw new ApiError(httpStatus.FORBIDDEN, "No userId provided");
+  const review: reviewLike[] = await reviewModel.getLikeuser(data.userId!);
+
+  if(review.length === 0 ) throw new ApiError(httpStatus.NOT_FOUND,"No like found");
   return review;
 };

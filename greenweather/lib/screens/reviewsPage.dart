@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/reviewLikeModel.dart';
 import 'package:greenweather/model/reviewModel.dart';
+import 'package:greenweather/model/userModel.dart';
+import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/review_provider.dart';
 import 'package:greenweather/screens/submitreportPage.dart';
@@ -16,13 +19,17 @@ class ReviewPage extends StatefulWidget {
 class _ReviewPageState extends State<ReviewPage> {
   String? _previousProvince; // Store the previous province
   bool _isInit = false; //first time run
-
+  Usermodel? _previousUserdata;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final provinceProvider = Provider.of<ProvinceProvider>(context);
+    final authProvider = Provider.of<AuthenticationProvider>(context);
+
+    //current data
     final selectedProvince = provinceProvider.selectProvince;
+    final Usermodel? user = authProvider.userdata;
 
     if (selectedProvince != null &&
         (!_isInit || selectedProvince != _previousProvince)) {
@@ -30,6 +37,7 @@ class _ReviewPageState extends State<ReviewPage> {
       _isInit = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Provider.of<ReviewProvider>(context, listen: false).userLike();
         await Provider.of<ReviewProvider>(context, listen: false)
             .getAllReviews(selectedProvince);
       });
@@ -86,6 +94,8 @@ class _ReviewPageState extends State<ReviewPage> {
               onRefresh: () async {
                 await Provider.of<ReviewProvider>(context, listen: false)
                     .getAllReviews(_previousProvince!);
+                await Provider.of<ReviewProvider>(context, listen: false)
+                    .userLike();
               },
               child: reviewProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -97,7 +107,10 @@ class _ReviewPageState extends State<ReviewPage> {
                           itemBuilder: (context, index) {
                             final Reviewmodel review =
                                 reviewProvider.reviews[index];
-                            return ReviewCard(index: index, review: review);
+                            return ReviewCard(
+                                index: index,
+                                review: review,
+                                reviewProvider: reviewProvider);
                           },
                         )
                       : Center(
@@ -133,12 +146,38 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 }
 
-class ReviewCard extends StatelessWidget {
+class ReviewCard extends StatefulWidget {
   final int index;
   final Reviewmodel review;
-  const ReviewCard({super.key, required this.index, required this.review});
+  final ReviewProvider? reviewProvider;
+  const ReviewCard(
+      {super.key,
+      required this.index,
+      required this.review,
+      this.reviewProvider});
 
   @override
+  State<ReviewCard> createState() => _ReviewCardState();
+}
+
+class _ReviewCardState extends State<ReviewCard> {
+  @override
+  late int findLikeIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.reviewProvider != null) {
+      findLikeIndex = widget.reviewProvider!.userLikedata
+          .indexWhere((post) => post.reviewId == widget.review.id);
+      if (findLikeIndex != -1) {
+        widget.review.isLike = true;
+      }
+    } else {
+      findLikeIndex = -1;
+    }
+  }
+
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -168,13 +207,13 @@ class ReviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '@${review.ownerName}',
+                      '@${widget.review.ownerName}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      '${review.createdAt?.split('T')[0].split("-")[2]} ${_getMonth(int.parse(review.createdAt!.split('-')[1]))}',
+                      '${widget.review.createdAt?.split('T')[0].split("-")[2]} ${_getMonth(int.parse(widget.review.createdAt!.split('-')[1]))}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -185,11 +224,30 @@ class ReviewCard extends StatelessWidget {
                 const Spacer(),
                 // Like button
                 IconButton(
-                  icon: const Icon(
-                    Icons.favorite_border,
+                  icon: Icon(
+                    widget.review.isLike
+                        ? Icons.favorite
+                        : Icons.favorite_border,
                     size: 22,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      widget.review.isLike = !widget.review.isLike;
+                    });
+
+                    if (widget.review.isLike) {
+                      // widget.review.rating = widget.review.rating! + 1;
+
+                      //save user like
+                      widget.reviewProvider!.saveLike(
+                          Reviewlikemodel(reviewId: widget.review.id!));
+                    } else {
+                      // widget.review.rating = widget.review.rating! - 1;
+                      widget.reviewProvider!.deleteLike(
+                          Reviewlikemodel(reviewId: widget.review.id!));
+                      widget.review.isLike = false;
+                    }
+                  },
                   constraints: const BoxConstraints(),
                   padding: EdgeInsets.zero,
                   color: Colors.grey.shade700,
@@ -213,7 +271,7 @@ class ReviewCard extends StatelessWidget {
 
             // Review content
             Text(
-              review.detail ?? "",
+              widget.review.detail ?? "",
               style: const TextStyle(fontSize: 14, height: 1.4),
             ),
 
@@ -227,7 +285,7 @@ class ReviewCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getAqiColor(review.aqi ?? 0),
+                    color: _getAqiColor(widget.review.aqi ?? 0),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -240,7 +298,7 @@ class ReviewCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'AQI ${review.aqi}',
+                        'AQI ${widget.review.aqi}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -263,13 +321,13 @@ class ReviewCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _getWeatherIcon(index),
+                        _getWeatherIcon(widget.index),
                         size: 14,
                         color: Colors.blue.shade700,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _getWeatherText(index),
+                        _getWeatherText(widget.index),
                         style: TextStyle(
                           color: Colors.blue.shade700,
                           fontWeight: FontWeight.w500,
@@ -281,7 +339,7 @@ class ReviewCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '${review.rating} คนเห็นด้วย',
+                  '${widget.review.rating} คนเห็นด้วย',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,

@@ -1,3 +1,4 @@
+
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -29,8 +30,9 @@ export const verifyUser = (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_KEY);
+    const decoded  = jwt.verify(token, JWT_KEY);
     req.user = decoded;
+    
     next();
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid token");

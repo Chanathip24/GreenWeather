@@ -49,7 +49,9 @@ class _AirQualityFormState extends State<AirQualityForm> {
         //get transaction again
         await authProvider.getTransaction();
         //get all user again
-        await Provider.of<UserlistProvider>(context,listen: false).getAllUser();
+        await Provider.of<UserlistProvider>(context, listen: false)
+            .getAllUser();
+
         if (reviewProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

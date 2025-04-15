@@ -4,10 +4,11 @@ class Reviewmodel {
   final String location;
   final String? createdAt;
   final int aqi;
-  final int? rating;
+  int? rating;
   final int? dislike;
   final String detail;
   final String? ownerName;
+  bool isLike = false;
 
   Reviewmodel({
     this.id,

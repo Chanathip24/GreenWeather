@@ -12,10 +12,12 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 enum PointType {
   ADD
   SUBTRACT
 }
+
 model User {
   id                 String             @id @default(uuid())
   email              String             @unique
@@ -30,28 +32,31 @@ model User {
   reviews            Review[]
   redemptions        Redemption[]
   pointTransactions  PointTransaction[]
+  ReviewLike         ReviewLike[]
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
   location  String
-  aqi       Int      @default(0) // Air Quality Index (AQI) value
-  rating    Int      @default(0)
-  dislike   Int      @default(0) // 1-5 stars for air quality
-  detail   String?
-  createdAt DateTime @default(now())
+  aqi       Int          @default(0) // Air Quality Index (AQI) value
+  rating    Int          @default(0)
+  dislike   Int          @default(0) // 1-5 stars for air quality
+  detail    String?
+  createdAt DateTime     @default(now())
+
+  likes     ReviewLike[]
 }
 
 model PointTransaction {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  points    Int 
+  user      User      @relation(fields: [userId], references: [id])
+  points    Int
   type      PointType
   reason    String // "Review Submitted", "Reward Redeemed", etc.
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model Reward {
@@ -70,4 +75,16 @@ model Redemption {
   rewardId  Int
   reward    Reward   @relation(fields: [rewardId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model ReviewLike {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  reviewId  Int
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  review Review @relation(fields: [reviewId], references: [id])
+
+  @@unique([userId, reviewId]) 
 }
