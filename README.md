@@ -95,7 +95,6 @@ Follow these steps to set up the Flutter frontend locally:
    npx prisma migrate dev
    ```
 
-   The backend will now be running on the specified `PORT`.
    
 5. **Start the backend server**
 
