@@ -10,6 +10,7 @@ class WeatherService {
     try {
       final response = await _dio
           .get("$_apiUrl/weather/", queryParameters: {'location': cityname});
+
       if (response.statusCode == 200) {
         return WeatherModel.fromJson(response.data['data']);
       } else {
@@ -22,8 +23,8 @@ class WeatherService {
 
   Future<List<Weatherforecastmodel>> getForecastByCity(String cityname) async {
     try {
-      final response = await _dio
-          .get("$_apiUrl/weather/forecast/7days", queryParameters: {'location': cityname});
+      final response = await _dio.get("$_apiUrl/weather/forecast/7days",
+          queryParameters: {'location': cityname});
       if (response.statusCode == 200) {
         List<Weatherforecastmodel> forecastList = [];
         for (var item in response.data['data']['list']) {
@@ -38,11 +39,12 @@ class WeatherService {
     }
   }
 
-  Future<List<Weatherhourlymodel>> getHourlyForecastByCity(String cityname) async {
+  Future<List<Weatherhourlymodel>> getHourlyForecastByCity(
+      String cityname) async {
     try {
-      final response = await _dio
-          .get("$_apiUrl/weather/forecast/hourly", queryParameters: {'location': cityname});
-      
+      final response = await _dio.get("$_apiUrl/weather/forecast/hourly",
+          queryParameters: {'location': cityname});
+
       if (response.statusCode == 200) {
         List<Weatherhourlymodel> hourlyList = [];
         for (var item in response.data['data']['hourly']) {
@@ -50,7 +52,8 @@ class WeatherService {
         }
         return hourlyList;
       } else {
-        throw Exception('Failed to load hourly forecast data: ${response.statusCode}');
+        throw Exception(
+            'Failed to load hourly forecast data: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception("Error fetching hourly forecast data: $e");

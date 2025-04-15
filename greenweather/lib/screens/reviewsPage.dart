@@ -3,6 +3,7 @@ import 'package:greenweather/model/reviewModel.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/review_provider.dart';
 import 'package:greenweather/screens/submitreportPage.dart';
+import 'package:greenweather/widgets/Appbar.dart';
 import 'package:provider/provider.dart';
 
 class ReviewPage extends StatefulWidget {
@@ -76,35 +77,50 @@ class _ReviewPageState extends State<ReviewPage> {
           ),
         ],
       ),
-      body: reviewProvider.isLoading
-          ? Center(child: CircularProgressIndicator())
-          : reviewProvider.reviews.isNotEmpty
-              ? ListView.builder(
-                  itemCount: reviewProvider.reviews.length,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemBuilder: (context, index) {
-                    final Reviewmodel review = reviewProvider.reviews[index];
-                    return ReviewCard(index: index, review: review);
-                  },
-                )
-              : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 60, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text(
-                        'ไม่พบรีวิวในจังหวัดนี้',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black54,
+      body: Column(
+        children: [
+          MainAppBar(),
+          Expanded(
+            // Add this Expanded widget around the RefreshIndicator
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await Provider.of<ReviewProvider>(context, listen: false)
+                    .getAllReviews(_previousProvince!);
+              },
+              child: reviewProvider.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : reviewProvider.reviews.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: reviewProvider.reviews.length,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          itemBuilder: (context, index) {
+                            final Reviewmodel review =
+                                reviewProvider.reviews[index];
+                            return ReviewCard(index: index, review: review);
+                          },
+                        )
+                      : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  size: 60, color: Colors.red),
+                              const SizedBox(height: 16),
+                              Text(
+                                'ไม่พบรีวิวในจังหวัดนี้',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         child: const Icon(Icons.add, color: Colors.white),

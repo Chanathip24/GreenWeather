@@ -9,7 +9,7 @@ class Apiservice {
   final Dio _dio = Dio();
   final String baseUrl = dotenv.env['API_URL'] ?? "http://10.0.2.2:8082";
 
-  // Retry request with new token
+  // Retry request
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {
     final options = Options(
       method: requestOptions.method,
@@ -35,14 +35,13 @@ class Apiservice {
 
     try {
       final response = await Dio().post(
-        '$baseUrl/authentication/refresh', // Replace with your refresh token endpoint
+        '$baseUrl/authentication/refresh',
         data: {
           'refreshToken': refreshToken,
         },
       );
 
       if (response.statusCode == 200) {
-        // Save new tokens
         await prefs.setString(
             'refresh_token', response.data['data']['refreshToken']);
         await prefs.setString(
@@ -90,7 +89,7 @@ class Apiservice {
   Future<List<Transactionmodel>> getTransactionHistory() async {
     try {
       final response = await _dio.get('$baseUrl/transaction/gettransaction');
-      
+
       List<Transactionmodel> transactions = (response.data['data'] as List)
           .map((e) => Transactionmodel.fromJson(e))
           .toList();
@@ -99,32 +98,43 @@ class Apiservice {
       throw Exception('Failed to get transaction history: $e');
     }
   }
-  
+
+  //แก้ไข User ส่ง acesstoken ไปด้วย
+  Future<Usermodel> updateUser(Usermodel user) async {
+    try {
+      final response =
+          await _dio.put('$baseUrl/user/update', data: user.toJson());
+
+      await refreshToken();
+      return Usermodel.fromJson(response.data['data']);
+    } catch (e) {
+      throw Exception("Failed to update user");
+    }
+  }
 
   Apiservice() {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // Add any request interceptors here if needed
         final prefs = await SharedPreferences.getInstance();
         final accessToken = prefs.getString('access_token');
 
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
         }
-        return handler.next(options); // continue with the request
+        return handler.next(options);
       },
       onError: (DioException error, handler) async {
-        // Handle errors here
+        // Handle errors
         if (error.response?.statusCode == 401) {
           try {
-            await refreshToken(); // Refresh token if 401 error occurs
+            await refreshToken();
             return handler.resolve(await _retry(error.requestOptions));
           } catch (e) {
             //wait for logout
             return handler.next(error);
           }
         }
-        return handler.next(error); // continue with the error
+        return handler.next(error);
       },
     ));
   }

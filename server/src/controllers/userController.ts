@@ -48,14 +48,25 @@ class Usercontroller {
   ): Promise<void> {
     try {
       const user: Partial<IUser> = req.body;
-
+      const { id } = req.user;
+      
+      if (user.id != id) {
+        
+        res.status(httpStatus.FORBIDDEN).json({
+          status: "failed",
+          message: "Failed to update user",
+        });
+        return;
+      }
       const updatedUser = await updateUser(user);
+      
       res.status(httpStatus.OK).json({
         status: "success",
         message: "Update user successfully",
         data: updatedUser,
       });
     } catch (error) {
+      
       next(error);
     }
   }

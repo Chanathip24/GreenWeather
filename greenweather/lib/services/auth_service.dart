@@ -39,8 +39,8 @@ class AuthService {
   //method
   Future<Usermodel> login(Usermodel user) async {
     try {
-      final response = await dio.post("$_apiUrl/authentication/login",
-          data: Usermodel.toJson(user));
+      final response =
+          await dio.post("$_apiUrl/authentication/login", data: user.toJson());
       if (response.statusCode == 200) {
         //save token
         final prefs = await SharedPreferences.getInstance();
@@ -59,10 +59,11 @@ class AuthService {
     }
   }
 
+  //สมัครสมาชิก
   Future<Usermodel> register(Usermodel user) async {
     try {
       final response = await dio.post("$_apiUrl/authentication/register",
-          data: Usermodel.toJson(user));
+          data: user.toJson());
       if (response.statusCode == 201) {
         //save token
         final prefs = await SharedPreferences.getInstance();

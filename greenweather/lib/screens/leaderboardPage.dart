@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/userlist_provider.dart';
+import 'package:greenweather/screens/loginPage.dart';
 import 'package:provider/provider.dart';
 
-// The LeaderboardScreen class that only returns a Scaffold
 class Leaderboardpage extends StatefulWidget {
   const Leaderboardpage({super.key});
 
@@ -15,6 +15,28 @@ class Leaderboardpage extends StatefulWidget {
 class _LeaderboardpageState extends State<Leaderboardpage> {
   Usermodel? _userdata;
   bool _isInit = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadUserList();
+    });
+  }
+
+  Future<void> _loadUserList() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Provider.of<UserlistProvider>(context, listen: false).getAllUser();
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -28,9 +50,8 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
       _userdata = curuser;
       _isInit = true;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Provider.of<UserlistProvider>(context, listen: false)
-            .getAllUser();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadUserList();
       });
     }
   }
@@ -39,23 +60,26 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
   Widget build(BuildContext context) {
     final AuthenticationProvider authProvider =
         Provider.of<AuthenticationProvider>(context);
-    final UserlistProvider _userlistProvider =
+    final UserlistProvider userlistProvider =
         Provider.of<UserlistProvider>(context);
 
-    //all user data
-    final List<Usermodel> userList = _userlistProvider.usersList;
-    //check if user exist
-    final userIndex =
-        userList.indexWhere((user) => user.id == authProvider.userdata?.id);
+    // Get all user data
+    final List<Usermodel> userList = List.from(userlistProvider.usersList)
+      ..sort((a, b) => (b.points ?? 0).compareTo(a.points ?? 0));
 
-    int getReachRank(String id) {
-      // หาตำแหน่งใน list
+    // Check if current user exists
+    final userIndex = authProvider.isAuthenticate == true
+        ? userList.indexWhere((user) => user.id == authProvider.userdata?.id)
+        : -1;
+
+    int getPointsToNextRank(String id) {
+      // Find user's ตำแหน่ง
       int index = userList.indexWhere((user) => user.id == id);
 
-      // หาไม่เจอ
+      // User not found
       if (index == -1) return 0;
 
-      //ที่ 1
+      // ที่ 1
       if (index == 0) return 0;
 
       final Usermodel currentUser = userList[index];
@@ -73,61 +97,143 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
 
-              // User stats card
-              authProvider.isAuthenticate == true && userIndex != -1
-                  ? Userstatscard(
-                      userRank: userIndex + 1,
-                      userPoints: userList[userIndex].points!,
-                      pointsToNextRank:
-                          getReachRank(authProvider.userdata?.id ?? ""))
-                  : SizedBox(),
+                    if (authProvider.isAuthenticate == true && userIndex != -1)
+                      Userstatscard(
+                          userRank: userIndex + 1,
+                          userPoints: userList[userIndex].points ?? 0,
+                          pointsToNextRank: getPointsToNextRank(
+                              authProvider.userdata?.id ?? "")),
 
-              const SizedBox(height: 24),
+                    if (authProvider.isAuthenticate != true)
+                      GuestUserCard(
+                        onSignIn: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage(
+                                        isPop: true,
+                                      )));
+                        },
+                      ),
 
-              // Leaderboard title
-              const Row(
-                children: [
-                  Text(
-                    'Top Participants',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 24),
+
+                    // Leaderboard title
+                    const Row(
+                      children: [
+                        Text(
+                          'Top Participants',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-              // Leaderboard entries
-              Expanded(
-                child: ListView.separated(
-                  itemCount: userList.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final user = userList[index];
-                    return LeaderboardTile(
-                      rank: index + 1,
-                      user: user,
-                    );
-                  },
+                    if (userList.isEmpty)
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'No participants yet',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: ListView.separated(
+                          itemCount: userList.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final user = userList[index];
+                            return LeaderboardTile(
+                              rank: index + 1,
+                              user: user,
+                            );
+                          },
+                        ),
+                      ),
+
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
+            ),
+    );
+  }
+}
 
-              const SizedBox(height: 16),
+class GuestUserCard extends StatelessWidget {
+  final VoidCallback onSignIn;
 
-              const SizedBox(height: 16),
-            ],
-          ),
+  const GuestUserCard({
+    Key? key,
+    required this.onSignIn,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.grey.shade100, Colors.blue.shade100],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'Join the Leaderboard!',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Sign in to track your progress and compete with others',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onSignIn,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Sign In'),
+          ),
+        ],
       ),
     );
   }
@@ -147,6 +253,10 @@ class Userstatscard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double progress = (userPoints + pointsToNextRank) > 0
+        ? userPoints / (userPoints + pointsToNextRank)
+        : 0.0;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -156,6 +266,13 @@ class Userstatscard extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -183,7 +300,7 @@ class Userstatscard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: userPoints / (userPoints + pointsToNextRank),
+              value: progress,
               minHeight: 8,
               backgroundColor: Colors.white.withOpacity(0.5),
               valueColor: AlwaysStoppedAnimation<Color>(
@@ -197,30 +314,14 @@ class Userstatscard extends StatelessWidget {
                   '$pointsToNextRank more points to reach rank #${userRank - 1}',
                   style: const TextStyle(fontSize: 14),
                 )
-              : Text(
+              : const Text(
                   'You are the top participant!',
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 ),
         ],
       ),
     );
   }
-}
-
-class LeaderboardEntry {
-  final String username;
-  final int points;
-  final int reviews;
-  final int photos;
-  final int consecutiveDays;
-
-  LeaderboardEntry({
-    required this.username,
-    required this.points,
-    required this.reviews,
-    required this.photos,
-    required this.consecutiveDays,
-  });
 }
 
 class LeaderboardTile extends StatelessWidget {
@@ -247,7 +348,7 @@ class LeaderboardTile extends StatelessWidget {
       medalColor = Colors.green.shade200;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           // Rank indicator
@@ -256,14 +357,21 @@ class LeaderboardTile extends StatelessWidget {
             height: 36,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: medalColor ?? Colors.green.shade50,
+              color: medalColor,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: medalColor.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Text(
               '$rank',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: medalColor != null ? Colors.white : Colors.black,
+                color: rank <= 3 ? Colors.white : Colors.black87,
               ),
             ),
           ),
@@ -275,7 +383,9 @@ class LeaderboardTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "@${user.fname} ${user.lname}",
+                  user.fname != null && user.lname != null
+                      ? "@${user.fname} ${user.lname}"
+                      : "User",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -284,19 +394,9 @@ class LeaderboardTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    // Reviews
-                    _buildStatChip(Icons.rate_review, user.points.toString()),
-
-                    const SizedBox(width: 16),
-
-                    // Photos
-                    _buildStatChip(Icons.photo, user.points.toString()),
-
-                    const SizedBox(width: 16),
-
-                    // Consecutive Days
+                    // Points
                     _buildStatChip(
-                        Icons.calendar_today, user.points.toString()),
+                        Icons.star_border, "${user.points ?? 0} pts"),
                   ],
                 ),
               ],
@@ -304,12 +404,19 @@ class LeaderboardTile extends StatelessWidget {
           ),
 
           // Points
-          Text(
-            user.points.toString(),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Theme.of(context).primaryColor,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              "${user.points ?? 0}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Theme.of(context).primaryColor,
+              ),
             ),
           ),
         ],

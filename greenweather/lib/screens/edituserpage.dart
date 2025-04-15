@@ -48,19 +48,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final authProvider =
           Provider.of<AuthenticationProvider>(context, listen: false);
 
-      // Create an updated user model
       final updatedUser = Usermodel(
         id: widget.user.id,
         fname: _fnameController.text.trim(),
         lname: _lnameController.text.trim(),
         email: _emailController.text.trim(),
-        points: widget.user.points,
-        // Keep any other properties from the original user model
       );
 
-      // await authProvider.updateUserProfile(updatedUser);
+      await authProvider.updateUser(updatedUser);
 
-      if (mounted) {
+      if (authProvider.error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('อัพเดทโปรไฟล์เรียบร้อยแล้ว'),
@@ -85,11 +82,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

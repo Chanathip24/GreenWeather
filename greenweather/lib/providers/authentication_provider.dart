@@ -110,6 +110,7 @@ class AuthenticationProvider extends ChangeNotifier {
     }
   }
 
+  //logout
   Future<void> logout() async {
     _loading = true;
     _error = null;
@@ -130,6 +131,25 @@ class AuthenticationProvider extends ChangeNotifier {
     } finally {
       _loading = false;
       notifyListeners();
+    }
+  }
+
+  //update
+  Future<void> updateUser(Usermodel newUser) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      Usermodel updateUser = await _apiService.updateUser(newUser);
+
+      //update local data
+      _userdata = updateUser;
+
+      _loading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _loading = false;
     }
   }
 }

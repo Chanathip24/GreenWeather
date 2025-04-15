@@ -5,7 +5,8 @@ import 'package:greenweather/screens/registerPage.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  bool? isPop;
+  LoginPage({super.key, this.isPop});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -29,7 +30,6 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // Added a minimal app bar
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -40,23 +40,6 @@ class _LoginPageState extends State<LoginPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.help_outline, color: Colors.green.shade700),
-        //     onPressed: () {
-        //       ScaffoldMessenger.of(context).showSnackBar(
-        //         SnackBar(
-        //           content: Text('ศูนย์ช่วยเหลือ'),
-        //           backgroundColor: Colors.green.shade700,
-        //           behavior: SnackBarBehavior.floating,
-        //           shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(10),
-        //           ),
-        //         ),
-        //       );
-        //     },
-        //   ),
-        // ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -66,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 30),
-                // Improved logo design related to "Green Weather"
+
                 Container(
                   width: 130,
                   height: 130,
@@ -116,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Thai subtitle
+
                 Text(
                   'รายงานสภาพอากาศและคุณภาพอากาศ',
                   style: TextStyle(
@@ -220,7 +203,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                // Forgot password moved to the right side
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -271,6 +253,9 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             );
+
+                            if (widget.isPop != null && widget.isPop != false)
+                              Navigator.pop(context);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -340,7 +325,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Social login - improved
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -358,7 +343,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                // Register prompt - improved
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

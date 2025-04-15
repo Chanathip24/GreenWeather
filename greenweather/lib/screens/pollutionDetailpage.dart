@@ -78,7 +78,7 @@ class AirQualityDetailPage extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 12),
-          // AQI Circle with animation
+
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: 1),
             duration: const Duration(milliseconds: 800),

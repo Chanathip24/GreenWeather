@@ -27,8 +27,7 @@ class WeatherDetailPage extends StatelessWidget {
               leading: CircleAvatar(
                 backgroundColor: Colors.white.withOpacity(0.9),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back,
-                      color: Color(0xFF2E7D32)), // Dark green
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF2E7D32)),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -49,7 +48,7 @@ class WeatherDetailPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2E7D32), // Dark green
+                        color: Color(0xFF2E7D32),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -90,7 +89,7 @@ class WeatherDetailPage extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 72,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E7D32), // Dark green
+                                        color: Color(0xFF2E7D32),
                                       ),
                                     ),
                                     Container(
@@ -100,8 +99,7 @@ class WeatherDetailPage extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
-                                          color:
-                                              Color(0xFF2E7D32), // Dark green
+                                          color: Color(0xFF2E7D32),
                                         ),
                                       ),
                                     ),
@@ -111,7 +109,7 @@ class WeatherDetailPage extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF2E7D32), // Dark green
+                                      color: Color(0xFF2E7D32),
                                     ),
                                     softWrap: true),
                                 Text(
@@ -119,7 +117,7 @@ class WeatherDetailPage extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFF2E7D32), // Dark green
+                                    color: Color(0xFF2E7D32),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -148,7 +146,7 @@ class WeatherDetailPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2E7D32), // Dark green
+                        color: Color(0xFF2E7D32),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -161,7 +159,7 @@ class WeatherDetailPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2E7D32), // Dark green
+                        color: Color(0xFF2E7D32),
                       ),
                     ),
                     const SizedBox(height: 12),

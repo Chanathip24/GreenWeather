@@ -25,12 +25,13 @@ class Usermodel {
     );
   }
   //tojson
-  static Map<String, dynamic> toJson(Usermodel user) {
+  Map<String, dynamic> toJson() {
     return {
-      'email': user.email,
-      'password': user.password,
-      'fname': user.fname ?? null,
-      'lname': user.lname ?? null,
+      'id': id,
+      'email': email,
+      'password': password,
+      'fname': fname ?? null,
+      'lname': lname ?? null,
     };
   }
 }
