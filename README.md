@@ -83,11 +83,21 @@ Follow these steps to set up the Flutter frontend locally:
    JWT_KEY=your-secret-jwt-key-here
    WEATHER_API_KEY=your-api-key-OpenweathermapAPI
    WAQI_KEY=your-api-key-WAQIAPI
+   POINT_REVIEW_REWARD = point-per-review
    ```
 
    Replace the placeholders with your actual configuration values.
 
-4. **Start the backend server**
+4. **Migrate database**
+
+   After setting `DATABASE_URL` in .env file you can migrate database into your db server.
+   ```bash
+   npx prisma migrate dev
+   ```
+
+   The backend will now be running on the specified `PORT`.
+   
+5. **Start the backend server**
 
    ```bash
    bun run dev
@@ -104,5 +114,6 @@ SALT_ROUND=12
 JWT_KEY=your-secure-random-jwt-key
 WEATHER_API_KEY=your-api-key-OpenweathermapAPI
 WAQI_KEY=your-api-key-WAQIAPI
+POINT_REVIEW_REWARD = 15
 ```
 
