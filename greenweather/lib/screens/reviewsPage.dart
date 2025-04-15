@@ -1,14 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/reviewModel.dart';
 import 'package:greenweather/providers/province_provider.dart';
+import 'package:greenweather/providers/review_provider.dart';
 import 'package:greenweather/screens/submitreportPage.dart';
+import 'package:greenweather/widgets/Appbar.dart';
 import 'package:provider/provider.dart';
 
-class ReviewPage extends StatelessWidget {
+class ReviewPage extends StatefulWidget {
   const ReviewPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<ReviewPage> createState() => _ReviewPageState();
+}
+
+class _ReviewPageState extends State<ReviewPage> {
+  String? _previousProvince; // Store the previous province
+  bool _isInit = false; //first time run
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
     final provinceProvider = Provider.of<ProvinceProvider>(context);
+    final selectedProvince = provinceProvider.selectProvince;
+
+    if (selectedProvince != null &&
+        (!_isInit || selectedProvince != _previousProvince)) {
+      _previousProvince = selectedProvince;
+      _isInit = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Provider.of<ReviewProvider>(context, listen: false)
+            .getAllReviews(selectedProvince);
+      });
+    }
+  }
+
+  Widget build(BuildContext context) {
+    //provider
+    final provinceProvider = Provider.of<ProvinceProvider>(context);
+    final reviewProvider = Provider.of<ReviewProvider>(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -27,7 +58,7 @@ class ReviewPage extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: provinceProvider.selectProvince ?? 'จังหวัด',
+                text: provinceProvider.selectProvince,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
@@ -38,17 +69,57 @@ class ReviewPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.black54),
-            onPressed: () {},
+            icon: const Icon(Icons.refresh, color: Colors.black54),
+            onPressed: () async {
+              await Provider.of<ReviewProvider>(context, listen: false)
+                  .getAllReviews(_previousProvince!);
+            },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: 4,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemBuilder: (context, index) {
-          return ReviewCard(index: index);
-        },
+      body: Column(
+        children: [
+          MainAppBar(),
+          Expanded(
+            // Add this Expanded widget around the RefreshIndicator
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await Provider.of<ReviewProvider>(context, listen: false)
+                    .getAllReviews(_previousProvince!);
+              },
+              child: reviewProvider.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : reviewProvider.reviews.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: reviewProvider.reviews.length,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          itemBuilder: (context, index) {
+                            final Reviewmodel review =
+                                reviewProvider.reviews[index];
+                            return ReviewCard(index: index, review: review);
+                          },
+                        )
+                      : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  size: 60, color: Colors.red),
+                              const SizedBox(height: 16),
+                              Text(
+                                'ไม่พบรีวิวในจังหวัดนี้',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
@@ -64,8 +135,8 @@ class ReviewPage extends StatelessWidget {
 
 class ReviewCard extends StatelessWidget {
   final int index;
-
-  const ReviewCard({super.key, required this.index});
+  final Reviewmodel review;
+  const ReviewCard({super.key, required this.index, required this.review});
 
   @override
   Widget build(BuildContext context) {
@@ -88,13 +159,8 @@ class ReviewCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 18,
                   backgroundColor: Colors.grey.shade200,
-                  child: Text(
-                    'U${index + 1}',
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Icon(Icons.person_outline,
+                      size: 18, color: Colors.grey.shade600),
                 ),
                 const SizedBox(width: 12),
                 // Username
@@ -102,13 +168,13 @@ class ReviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '@user${1234 + index}',
+                      '@${review.ownerName}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      '${DateTime.now().day - index} ${_getMonth(DateTime.now().month)}',
+                      '${review.createdAt?.split('T')[0].split("-")[2]} ${_getMonth(int.parse(review.createdAt!.split('-')[1]))}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -147,7 +213,7 @@ class ReviewCard extends StatelessWidget {
 
             // Review content
             Text(
-              _getReviewText(index),
+              review.detail ?? "",
               style: const TextStyle(fontSize: 14, height: 1.4),
             ),
 
@@ -161,7 +227,7 @@ class ReviewCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getAqiColor(index),
+                    color: _getAqiColor(review.aqi ?? 0),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -174,7 +240,7 @@ class ReviewCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'AQI ${110 + (index * 10)}',
+                        'AQI ${review.aqi}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -215,7 +281,7 @@ class ReviewCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '${20 - (index * 5)} คนเห็นด้วย',
+                  '${review.rating} คนเห็นด้วย',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,
@@ -257,14 +323,25 @@ class ReviewCard extends StatelessWidget {
     return months[month - 1];
   }
 
-  Color _getAqiColor(int index) {
+  Color _getAqiColor(int aqi) {
     final List<Color> colors = [
+      Colors.green.shade400,
       Colors.orange,
       Colors.amber.shade700,
       Colors.red.shade400,
       Colors.purple.shade400,
     ];
-    return colors[index % colors.length];
+    if (aqi <= 50) {
+      return colors[0];
+    } else if (aqi <= 100) {
+      return colors[1];
+    } else if (aqi <= 150) {
+      return colors[2];
+    } else if (aqi <= 200) {
+      return colors[3];
+    } else {
+      return colors[4];
+    }
   }
 
   IconData _getWeatherIcon(int index) {

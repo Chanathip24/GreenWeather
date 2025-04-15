@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/transactionModel.dart';
 import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
+import 'package:greenweather/providers/userlist_provider.dart';
 import 'package:greenweather/screens/edituserpage.dart';
 import 'package:greenweather/screens/loginPage.dart';
 import 'package:greenweather/screens/rewardPage.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:greenweather/services/time_service.dart';
 
-//model
-import '../model/activityModel.dart';
+import 'package:provider/provider.dart';
 
 class GreenUserProfilePage extends StatefulWidget {
   final Usermodel? user;
-  const GreenUserProfilePage({super.key, required this.user});
+  final List<Transactionmodel>? transaction;
+
+  const GreenUserProfilePage(
+      {super.key, required this.user, required this.transaction});
 
   @override
   State<GreenUserProfilePage> createState() => _GreenUserProfilePageState();
@@ -21,38 +24,32 @@ class GreenUserProfilePage extends StatefulWidget {
 class _GreenUserProfilePageState extends State<GreenUserProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  final List<ActivityItem> _activities = [
-    ActivityItem(
-      title: 'รางวัลพลังงาน',
-      date: DateTime.now().subtract(const Duration(days: 1)),
-      points: 15,
-      isPositive: true,
-    ),
-    ActivityItem(
-      title: 'รางวัลพลังงาน',
-      date: DateTime.now().subtract(const Duration(days: 6)),
-      points: 15,
-      isPositive: true,
-    ),
-    ActivityItem(
-      title: 'ร่วมแคมเปญ ลดการใช้พลังงาน',
-      date: DateTime.now().subtract(const Duration(days: 10)),
-      points: 50,
-      isPositive: true,
-    ),
-    ActivityItem(
-      title: 'แลกของรางวัล - บัตรกำนัลมูลค่า 100 บาท',
-      date: DateTime.now().subtract(const Duration(days: 12)),
-      points: 200,
-      isPositive: false,
-    ),
-  ];
+  bool _isInit = false;
+  Usermodel? _userdata;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final AuthenticationProvider authenticationProvider =
+        Provider.of<AuthenticationProvider>(context);
+    final curuser = authenticationProvider.userdata;
+
+    if (curuser != null && (!_isInit || curuser != _userdata)) {
+      _userdata = curuser;
+      _isInit = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Provider.of<AuthenticationProvider>(context, listen: false)
+            .getTransaction();
+      });
+    }
   }
 
   @override
@@ -95,6 +92,15 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final authProvider = Provider.of<AuthenticationProvider>(context);
+    final UserlistProvider userlistProvider =
+        Provider.of<UserlistProvider>(context);
+
+    //all user data
+    final List<Usermodel> userList = userlistProvider.usersList;
+    //check if user exist
+    final userIndex =
+        userList.indexWhere((user) => user.id == authProvider.userdata?.id);
+
     final colorScheme = Theme.of(context).colorScheme;
     final primaryColor = isDark ? Colors.green.shade300 : Colors.green.shade600;
     final backgroundColor = isDark ? colorScheme.surface : Colors.grey.shade50;
@@ -208,14 +214,16 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                 const Icon(Icons.stars_rounded,
                                     color: Colors.white, size: 32),
                                 const SizedBox(width: 12),
-                                Text(
-                                  '${widget.user?.points}',
-                                  style: const TextStyle(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                userIndex != -1
+                                    ? Text(
+                                        '${userList[userIndex].points}',
+                                        style: const TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : SizedBox(),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -232,7 +240,9 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => RewardPage()),
+                                      builder: (context) => RewardPage(
+                                          points:
+                                              userList[userIndex].points ?? 0)),
                                 );
                               },
                               icon: const Icon(Icons.redeem),
@@ -274,7 +284,6 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                               controller: _tabController,
                               tabs: const [
                                 Tab(text: 'กิจกรรมล่าสุด'),
-                                Tab(text: 'สถิติของฉัน'),
                               ],
                               labelColor: primaryColor,
                               unselectedLabelColor: isDark
@@ -289,8 +298,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                               child: TabBarView(
                                 controller: _tabController,
                                 children: [
-                                  // Recent Activities Tab
-                                  _activities.isEmpty
+                                  widget.transaction!.isEmpty
                                       ? const Center(
                                           child: Column(
                                             mainAxisAlignment:
@@ -309,51 +317,19 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                         )
                                       : ListView.separated(
                                           padding: const EdgeInsets.all(16),
-                                          itemCount: _activities.length,
+                                          itemCount: widget.transaction!.length,
                                           separatorBuilder: (context, index) =>
                                               Divider(
                                             height: 1,
                                             color: Colors.grey.withOpacity(0.2),
                                           ),
                                           itemBuilder: (context, index) {
-                                            final activity = _activities[index];
+                                            final activity =
+                                                widget.transaction![index];
                                             return ActivityListItem(
                                                 activity: activity);
                                           },
                                         ),
-
-                                  // Statistics Tab
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'สถิติการใช้งาน',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Container(
-                                          width: double.infinity,
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            color:
-                                                primaryColor.withOpacity(0.1),
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                          child: const Center(
-                                            child: Text(
-                                                'กราฟแสดงสถิติจะอยู่ที่นี่'),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -419,15 +395,15 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
 }
 
 class ActivityListItem extends StatelessWidget {
-  final ActivityItem activity;
+  final Transactionmodel activity;
 
-  const ActivityListItem({Key? key, required this.activity}) : super(key: key);
+  const ActivityListItem({super.key, required this.activity});
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('EEE, d/M').format(activity.date);
+    final formattedDate = TimeService.getCurrentTime(activity.createdAt);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final pointColor = activity.isPositive ? Colors.green : Colors.red;
+    final pointColor = activity.type == "ADD" ? Colors.green : Colors.red;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -441,7 +417,7 @@ class ActivityListItem extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              activity.isPositive
+              activity.type == "ADD"
                   ? Icons.add_circle_outline
                   : Icons.remove_circle_outline,
               color: pointColor,
@@ -453,7 +429,7 @@ class ActivityListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  activity.title,
+                  activity.reason,
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                   ),
@@ -469,7 +445,7 @@ class ActivityListItem extends StatelessWidget {
             ),
           ),
           Text(
-            '${activity.isPositive ? '+' : '-'}${activity.points}',
+            '${activity.type == "ADD" ? '+' : '-'}${activity.points}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: pointColor,

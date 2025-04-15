@@ -26,7 +26,6 @@ class HourlyForecastList extends StatelessWidget {
         itemCount: hourlyWeather.length,
         itemBuilder: (context, index) {
           final item = hourlyWeather[index];
-          // Assume 13:00 is current hour
 
           return Container(
             width: 80,

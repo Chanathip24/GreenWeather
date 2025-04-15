@@ -6,6 +6,9 @@ import cors from "cors";
 import authenticationRoute from "./routes/authenticationRoute";
 import weatherRoute from "./routes/weatherRoute";
 import airpollutionRoute from "./routes/airpollutionRoute";
+import userRoute from "./routes/userRoute";
+import reviewsRoute from "./routes/reviewsRoute";
+import transactionRoute from "./routes/transactionRoute";
 
 //error
 import { errorHandler } from "./middlewares/errorHandler";
@@ -26,13 +29,32 @@ app.use(
 app.use("/authentication", authenticationRoute);
 app.use("/weather", weatherRoute);
 app.use("/pm", airpollutionRoute);
+app.use("/user", userRoute);
+app.use("/review", reviewsRoute);
+app.use("/transaction", transactionRoute);
 
 //error handler
 app.use(errorHandler);
 
-app.listen(PORT, (err) => {
+app.listen(PORT, (err?: Error) => {
   if (err) {
-    console.log(err);
+    console.error("❌ Error starting server:", err);
+    return;
   }
-  console.log(`Server is running on port http://localhost:${PORT}`);
+  const asciiLogo = `
+  _____ _             _   
+ / ____| |           | |  
+| (___ | |_ __ _ _ __| |_ 
+ \\___ \\| __/ _\` | '__| __|
+ ____) | || (_| | |  | |_ 
+|_____/ \\__\\__,_|_|   \\__|
+
+        GreenWeather 🌿
+`;
+
+  console.log(asciiLogo);
+  console.log("\n" + "=".repeat(40));
+  console.log(`✅ Server is running at : http://localhost:${PORT}`);
+  console.log(`🕒 Started at : ${new Date().toLocaleString()}`);
+  console.log("=".repeat(40) + "\n");
 });

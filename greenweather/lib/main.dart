@@ -5,6 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart'; //env
 import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
+import 'package:greenweather/providers/review_provider.dart';
+import 'package:greenweather/providers/userlist_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 //screen
 import 'package:greenweather/screens/mainScreen.dart';
@@ -25,6 +27,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => ProvinceProvider()),
         ChangeNotifierProvider(create: (context) => PollutionProvider()),
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (context) => ReviewProvider()),
+        ChangeNotifierProvider(create: (context) => UserlistProvider())
       ],
       child: const MyApp(),
     ),
@@ -81,6 +85,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           Leaderboardpage(),
           GreenUserProfilePage(
             user: authProvider.userdata,
+            transaction: authProvider.transactions,
           ),
         ],
       ),

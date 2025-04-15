@@ -32,3 +32,15 @@ export interface UserResponse {
   lname : string;
   points: number;
 }
+export interface Userinputid{
+  userId: string;
+}
+type PointType = "ADD" | "SUBTRACT"
+//user with add or subtract points
+export interface UserWithPoints {
+  id: string;
+  type : PointType;
+  points: number;
+}
+
+

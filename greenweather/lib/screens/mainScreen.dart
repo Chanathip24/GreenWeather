@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:greenweather/model/adviceModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
+import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/screens/weatherDetailPage.dart';
 import 'package:greenweather/widgets/Airqualitycard.dart';
@@ -18,15 +19,27 @@ class Mainscreen extends StatefulWidget {
 
 class _MainscreenState extends State<Mainscreen> {
   String _selectedCity = 'Bangkok';
+  bool _isInit = false;
+
   @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async {
-      await Provider.of<PollutionProvider>(context, listen: false)
-          .fetchPollution(_selectedCity);
-      await Provider.of<WeatherProvider>(context, listen: false)
-          .fetchWeatherData(_selectedCity);
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final provinceProvider = Provider.of<ProvinceProvider>(context);
+    final selectedProvince = provinceProvider.selectProvince;
+
+    if (selectedProvince != null &&
+        (!_isInit || selectedProvince != _selectedCity)) {
+      _selectedCity = selectedProvince;
+      _isInit = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Provider.of<PollutionProvider>(context, listen: false)
+            .fetchPollution(_selectedCity);
+        await Provider.of<WeatherProvider>(context, listen: false)
+            .fetchWeatherData(_selectedCity);
+      });
+    }
   }
 
   Widget build(BuildContext context) {
@@ -64,10 +77,7 @@ class _MainscreenState extends State<Mainscreen> {
       return SafeArea(
         child: Column(
           children: [
-            MainAppBar(
-              weatherProvider: weatherProvider,
-              pollutionProvider: pollutionProvider,
-            ),
+            MainAppBar(),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),

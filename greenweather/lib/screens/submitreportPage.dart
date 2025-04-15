@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:greenweather/model/reviewModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
+import 'package:greenweather/providers/pollution_provider.dart';
+import 'package:greenweather/providers/province_provider.dart';
+import 'package:greenweather/providers/review_provider.dart';
+import 'package:greenweather/providers/userlist_provider.dart';
+import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/screens/loginPage.dart';
 import 'package:provider/provider.dart';
 
@@ -11,48 +17,69 @@ class AirQualityForm extends StatefulWidget {
 }
 
 class _AirQualityFormState extends State<AirQualityForm> {
-  final TextEditingController _symptomsController = TextEditingController();
-  final TextEditingController _aqiController = TextEditingController();
+  final TextEditingController _detail = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
 
   @override
   void dispose() {
-    _symptomsController.dispose();
-    _aqiController.dispose();
+    _detail.dispose();
+
     super.dispose();
-  }
-
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('ส่งข้อมูลสำเร็จ'),
-          backgroundColor: Colors.green.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          margin: const EdgeInsets.all(12),
-        ),
-      );
-
-      // Clear form
-      _symptomsController.clear();
-      _aqiController.clear();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthenticationProvider>(context);
+    final AuthenticationProvider authProvider =
+        Provider.of<AuthenticationProvider>(context);
+    final currentPM = Provider.of<PollutionProvider>(context).currentPollution;
+    final selectProvince =
+        Provider.of<ProvinceProvider>(context).selectProvince;
+    final reviewProvider = Provider.of<ReviewProvider>(context);
+
+    final String userId = authProvider.userdata?.id ?? '';
+    Future<void> _submitForm() async {
+      if (_formKey.currentState!.validate()) {
+        await reviewProvider.addReview(
+          Reviewmodel(
+              detail: _detail.text,
+              userId: userId,
+              aqi: currentPM!.aqi,
+              location: selectProvince),
+        );
+        //get transaction again
+        await authProvider.getTransaction();
+        //get all user again
+        await Provider.of<UserlistProvider>(context,listen: false).getAllUser();
+        if (reviewProvider.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(reviewProvider.error!),
+              backgroundColor: Colors.red.shade700,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              margin: const EdgeInsets.all(12),
+            ),
+          );
+          return;
+        }
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('ส่งข้อมูลสำเร็จ'),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(12),
+          ),
+        );
+
+        // Clear form
+        _detail.clear();
+      }
+    }
 
     if (!authProvider.isAuthenticate) {
       return LoginPage();
@@ -119,7 +146,7 @@ class _AirQualityFormState extends State<AirQualityForm> {
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
-                      controller: _symptomsController,
+                      controller: _detail,
                       decoration: InputDecoration(
                         hintText: 'เช่น แสบตา ไอ หายใจลำบาก',
                         hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -161,53 +188,9 @@ class _AirQualityFormState extends State<AirQualityForm> {
                             color: Colors.black87,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Tooltip(
-                          message: 'ค่า AQI ระหว่าง 0-500',
-                          child: Icon(Icons.help_outline,
-                              color: Colors.grey.shade500, size: 16),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _aqiController,
-                      decoration: InputDecoration(
-                        hintText: 'ระบุค่า AQI เช่น 125',
-                        hintStyle: TextStyle(color: Colors.grey.shade400),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.green.shade400),
-                        ),
-                        contentPadding: const EdgeInsets.all(16),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'กรุณาระบุค่า AQI';
-                        }
-                        if (int.tryParse(value) == null) {
-                          return 'กรุณาระบุตัวเลขเท่านั้น';
-                        }
-                        final aqi = int.parse(value);
-                        if (aqi < 0 || aqi > 500) {
-                          return 'ค่า AQI ควรอยู่ระหว่าง 0-500';
-                        }
-                        return null;
-                      },
-                    ),
 
-                    const SizedBox(height: 12),
                     _buildAqiIndicator(),
 
                     const SizedBox(height: 40),
@@ -217,7 +200,8 @@ class _AirQualityFormState extends State<AirQualityForm> {
                       height: 52,
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _submitForm,
+                        onPressed:
+                            reviewProvider.isLoading ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green.shade500,
                           foregroundColor: Colors.white,
@@ -227,7 +211,7 @@ class _AirQualityFormState extends State<AirQualityForm> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: _isLoading
+                        child: reviewProvider.isLoading
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
