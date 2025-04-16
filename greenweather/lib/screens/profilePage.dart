@@ -182,7 +182,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                       ),
-
+                      Text(widget.user?.tier?.description ?? ""),
                       const SizedBox(height: 24),
 
                       // Points Card

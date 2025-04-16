@@ -298,51 +298,51 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
                 // Divider with text
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 1,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        'หรือ',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 1,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: Divider(
+                //         thickness: 1,
+                //         color: Colors.grey.shade300,
+                //       ),
+                //     ),
+                //     Padding(
+                //       padding: const EdgeInsets.symmetric(horizontal: 12),
+                //       child: Text(
+                //         'หรือ',
+                //         style: TextStyle(
+                //           color: Colors.grey.shade600,
+                //           fontSize: 14,
+                //         ),
+                //       ),
+                //     ),
+                //     Expanded(
+                //       child: Divider(
+                //         thickness: 1,
+                //         color: Colors.grey.shade300,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 20),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialLoginButton(
-                      icon: Icons.facebook,
-                      color: Colors.blue.shade600,
-                      onPressed: () {},
-                    ),
-                    const SizedBox(width: 24),
-                    _socialLoginButton(
-                      icon: Icons.g_mobiledata_rounded,
-                      color: Colors.red.shade600,
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     _socialLoginButton(
+                //       icon: Icons.facebook,
+                //       color: Colors.blue.shade600,
+                //       onPressed: () {},
+                //     ),
+                //     const SizedBox(width: 24),
+                //     _socialLoginButton(
+                //       icon: Icons.g_mobiledata_rounded,
+                //       color: Colors.red.shade600,
+                //       onPressed: () {},
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -314,46 +314,46 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Or divider
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(color: Colors.grey[300], thickness: 1),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'หรือ',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(color: Colors.grey[300], thickness: 1),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                // // Or divider
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: Divider(color: Colors.grey[300], thickness: 1),
+                //     ),
+                //     Padding(
+                //       padding: const EdgeInsets.symmetric(horizontal: 16),
+                //       child: Text(
+                //         'หรือ',
+                //         style: TextStyle(
+                //           color: Colors.grey[600],
+                //           fontSize: 14,
+                //         ),
+                //       ),
+                //     ),
+                //     Expanded(
+                //       child: Divider(color: Colors.grey[300], thickness: 1),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 16),
 
-                // Social login
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialLoginButton(
-                      icon: Icons.facebook,
-                      color: Colors.blue,
-                      onPressed: () {},
-                    ),
-                    const SizedBox(width: 16),
-                    _socialLoginButton(
-                      icon: Icons.g_mobiledata_rounded,
-                      color: Colors.red,
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
+                // // Social login
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     _socialLoginButton(
+                //       icon: Icons.facebook,
+                //       color: Colors.blue,
+                //       onPressed: () {},
+                //     ),
+                //     const SizedBox(width: 16),
+                //     _socialLoginButton(
+                //       icon: Icons.g_mobiledata_rounded,
+                //       color: Colors.red,
+                //       onPressed: () {},
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

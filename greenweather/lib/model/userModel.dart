@@ -49,38 +49,38 @@ class Usermodel {
 TierModel _getTierFromPoints(int points) {
   if (points < 100) {
     return TierModel(
-      name: 'Seedling',
+      name: 'Raindrop',
       minPoints: 0,
       maxPoints: 99,
-      description: 'Just getting started on your eco journey.',
+      description: 'Every drop counts — you’ve just started!',
     );
   } else if (points < 300) {
     return TierModel(
-      name: 'Planter',
+      name: 'Breeze',
       minPoints: 100,
       maxPoints: 299,
-      description: 'Helping the planet by being consistent.',
+      description: 'Your actions are making a gentle impact.',
     );
   } else if (points < 600) {
     return TierModel(
-      name: 'Grower',
+      name: 'Sunbeam',
       minPoints: 300,
       maxPoints: 599,
-      description: 'Actively making a difference.',
+      description: 'You’re bringing real light to the planet.',
     );
   } else if (points < 1000) {
     return TierModel(
-      name: 'Guardian',
+      name: 'Riverflow',
       minPoints: 600,
       maxPoints: 999,
-      description: 'Protecting the Earth with your actions.',
+      description: 'Your efforts are flowing strong and steady.',
     );
   } else {
     return TierModel(
-      name: 'Eco Hero',
+      name: 'Earthkeeper',
       minPoints: 1000,
       maxPoints: 999999,
-      description: 'You are a true hero for the environment!',
+      description: 'You’re a true guardian of the Earth!',
     );
   }
 }

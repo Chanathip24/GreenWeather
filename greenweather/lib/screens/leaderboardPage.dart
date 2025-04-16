@@ -15,7 +15,6 @@ class Leaderboardpage extends StatefulWidget {
 class _LeaderboardpageState extends State<Leaderboardpage> {
   Usermodel? _previousUserdata;
   bool _isInit = false;
- 
 
   @override
   void didChangeDependencies() {
@@ -32,7 +31,6 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
       _previousUserdata = currentUser;
       _isInit = true;
 
-
       try {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           await Provider.of<UserlistProvider>(context, listen: false)
@@ -45,13 +43,11 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
                 content: Text('Failed to load leaderboard: ${e.toString()}')),
           );
         }
-      } 
+      }
     }
   }
 
   Future<void> _refreshData() async {
-
-
     try {
       await Provider.of<UserlistProvider>(context, listen: false).getAllUser();
     } catch (e) {
@@ -60,7 +56,7 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
           SnackBar(content: Text('Failed to refresh data: ${e.toString()}')),
         );
       }
-    } 
+    }
   }
 
   @override
