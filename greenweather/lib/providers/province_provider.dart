@@ -40,7 +40,7 @@ class ProvinceProvider extends ChangeNotifier {
     "Nan": {"en": "Nan", "th": "น่าน"},
     // "Yasothon": {"en": "Yasothon", "th": "ยโสธร"},
     // "Ang Thong": {"en": "Ang Thong", "th": "อ่างทอง"},
-    "Surin": {"en": "Surin", "th": "สุรินทร์"},
+    //"Surin": {"en": "Surin", "th": "สุรินทร์"},
     "Phrae": {"en": "Phrae", "th": "แพร่"},
     // "Buri Ram": {"en": "Buri Ram", "th": "บุรีรัมย์"},
     "Prachuap Khiri Khan": {

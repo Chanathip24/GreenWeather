@@ -119,8 +119,11 @@ class Apiservice {
       final response = await _dio.get('$baseUrl/review/like/all');
       final List dataList = response.data['data'];
 
+      
+
       return dataList.map((item) => Reviewlikemodel.fromJson(item)).toList();
     } catch (e) {
+      
       throw Exception("Failed to get user's like");
     }
   }
@@ -142,7 +145,7 @@ class Apiservice {
     try {
       final response = await _dio.post('$baseUrl/review/like/savelike',
           data: review.toJson());
-      ;
+
       return Reviewlikemodel.fromJson(response.data['data']);
     } catch (e) {
       throw Exception("Failed to like the post.");

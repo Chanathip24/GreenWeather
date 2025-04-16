@@ -30,14 +30,11 @@ class ReviewProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print("try fetching user like"); //debug
-
       List<Reviewlikemodel> likeData = await _apiservice.getUserLike();
       _userLike = likeData;
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print(e.toString()); //debug
       _error = e.toString();
       _isLoading = false;
       _userLike = [];

@@ -164,14 +164,13 @@ class Reviewcontroller {
       
       
       const reviews = await getuserlike({ userId });
-
       res.status(httpStatus.OK).json({
         status: "success",
         message: "Get all user like successfuly",
         data: reviews,
       });
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       next(error);
     }
   }

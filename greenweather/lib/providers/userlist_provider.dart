@@ -22,12 +22,12 @@ class UserlistProvider extends ChangeNotifier {
   Future<void> getAllUser() async {
     _isLoading = true;
     _error = null;
+    _usersList = [];
     notifyListeners();
 
     try {
-      _usersList.clear();
       final users = await _userlistService.getUserList();
-      _usersList.addAll(users);
+      _usersList = users;
       _isLoading = false;
       notifyListeners();
     } catch (e) {

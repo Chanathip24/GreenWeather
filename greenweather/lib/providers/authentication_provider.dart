@@ -119,16 +119,14 @@ class AuthenticationProvider extends ChangeNotifier {
     try {
       //logout from api
       bool result = await _apiService.logout();
-      if (result) {
-        //remove user data
-        _userdata = null;
-        _isAuthenticate = false;
-      } else {
-        _error = "Logout failed";
-      }
+
+      //remove user data
+      _userdata = null;
+      _isAuthenticate = false;
+      _loading = false;
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
-    } finally {
       _loading = false;
       notifyListeners();
     }

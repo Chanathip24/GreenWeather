@@ -10,7 +10,8 @@ import 'package:greenweather/screens/loginPage.dart';
 import 'package:provider/provider.dart';
 
 class AirQualityForm extends StatefulWidget {
-  const AirQualityForm({super.key});
+  final bool? isPop;
+  const AirQualityForm({super.key, this.isPop});
 
   @override
   State<AirQualityForm> createState() => _AirQualityFormState();
@@ -46,11 +47,11 @@ class _AirQualityFormState extends State<AirQualityForm> {
               aqi: currentPM!.aqi,
               location: selectProvince),
         );
-        //get transaction again
-        await authProvider.getTransaction();
-        //get all user again
-        await Provider.of<UserlistProvider>(context, listen: false)
-            .getAllUser();
+        // //get transaction again
+        // await authProvider.getTransaction();
+        // //get all user again
+        // await Provider.of<UserlistProvider>(context, listen: false)
+        //     .getAllUser();
 
         if (reviewProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -80,6 +81,9 @@ class _AirQualityFormState extends State<AirQualityForm> {
 
         // Clear form
         _detail.clear();
+        widget.isPop != null && widget.isPop == true
+            ? Navigator.pop(context)
+            : null;
       }
     }
 

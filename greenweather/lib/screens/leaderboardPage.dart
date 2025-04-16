@@ -13,47 +13,54 @@ class Leaderboardpage extends StatefulWidget {
 }
 
 class _LeaderboardpageState extends State<Leaderboardpage> {
-  Usermodel? _userdata;
+  Usermodel? _previousUserdata;
   bool _isInit = false;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _loadUserList();
-    });
-  }
-
-  Future<void> _loadUserList() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    await Provider.of<UserlistProvider>(context, listen: false).getAllUser();
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
+ 
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _loadData();
+  }
 
-    final AuthenticationProvider authenticationProvider =
-        Provider.of<AuthenticationProvider>(context);
-    final curuser = authenticationProvider.userdata;
+  Future<void> _loadData() async {
+    final authProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
+    final currentUser = authProvider.userdata;
 
-    if (curuser != null && (!_isInit || curuser != _userdata)) {
-      _userdata = curuser;
+    if (!_isInit || currentUser?.id != _previousUserdata?.id) {
+      _previousUserdata = currentUser;
       _isInit = true;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadUserList();
-      });
+
+      try {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Provider.of<UserlistProvider>(context, listen: false)
+              .getAllUser();
+        });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Failed to load leaderboard: ${e.toString()}')),
+          );
+        }
+      } 
     }
+  }
+
+  Future<void> _refreshData() async {
+
+
+    try {
+      await Provider.of<UserlistProvider>(context, listen: false).getAllUser();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to refresh data: ${e.toString()}')),
+        );
+      }
+    } 
   }
 
   @override
@@ -97,81 +104,85 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
-      body: _isLoading
+      body: userlistProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
+                child: RefreshIndicator(
+                  onRefresh: _refreshData,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16),
 
-                    if (authProvider.isAuthenticate == true && userIndex != -1)
-                      Userstatscard(
-                          userRank: userIndex + 1,
-                          userPoints: userList[userIndex].points ?? 0,
-                          pointsToNextRank: getPointsToNextRank(
-                              authProvider.userdata?.id ?? "")),
+                      if (authProvider.isAuthenticate == true &&
+                          userIndex != -1)
+                        Userstatscard(
+                            userRank: userIndex + 1,
+                            userPoints: userList[userIndex].points ?? 0,
+                            pointsToNextRank: getPointsToNextRank(
+                                authProvider.userdata?.id ?? "")),
 
-                    if (authProvider.isAuthenticate != true)
-                      GuestUserCard(
-                        onSignIn: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginPage(
-                                        isPop: true,
-                                      )));
-                        },
-                      ),
-
-                    const SizedBox(height: 24),
-
-                    // Leaderboard title
-                    const Row(
-                      children: [
-                        Text(
-                          'Top Participants',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    if (userList.isEmpty)
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            'No participants yet',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: ListView.separated(
-                          itemCount: userList.length,
-                          separatorBuilder: (context, index) =>
-                              const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            final user = userList[index];
-                            return LeaderboardTile(
-                              rank: index + 1,
-                              user: user,
-                            );
+                      if (authProvider.isAuthenticate != true)
+                        GuestUserCard(
+                          onSignIn: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage(
+                                          isPop: true,
+                                        )));
                           },
                         ),
+
+                      const SizedBox(height: 24),
+
+                      // Leaderboard title
+                      const Row(
+                        children: [
+                          Text(
+                            'Top Participants',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
 
-                    const SizedBox(height: 16),
-                  ],
+                      const SizedBox(height: 16),
+
+                      if (userList.isEmpty)
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              'No participants yet',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        Expanded(
+                          child: ListView.separated(
+                            itemCount: userList.length,
+                            separatorBuilder: (context, index) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final user = userList[index];
+                              return LeaderboardTile(
+                                rank: index + 1,
+                                user: user,
+                              );
+                            },
+                          ),
+                        ),
+
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ),

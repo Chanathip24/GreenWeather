@@ -24,7 +24,10 @@ class _MainscreenState extends State<Mainscreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _loadData();
+  }
 
+  Future<void> _loadData() async {
     final provinceProvider = Provider.of<ProvinceProvider>(context);
     final selectedProvince = provinceProvider.selectProvince;
 
@@ -34,12 +37,23 @@ class _MainscreenState extends State<Mainscreen> {
       _isInit = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Provider.of<PollutionProvider>(context, listen: false)
-            .fetchPollution(_selectedCity);
-        await Provider.of<WeatherProvider>(context, listen: false)
-            .fetchWeatherData(_selectedCity);
+        await Future.wait([
+          Provider.of<PollutionProvider>(context, listen: false)
+              .fetchPollution(_selectedCity),
+          Provider.of<WeatherProvider>(context, listen: false)
+              .fetchWeatherData(_selectedCity)
+        ]);
       });
     }
+  }
+
+  Future<void> _refreshData() async {
+    await Future.wait([
+      Provider.of<PollutionProvider>(context, listen: false)
+          .fetchPollution(_selectedCity),
+      Provider.of<WeatherProvider>(context, listen: false)
+          .fetchWeatherData(_selectedCity)
+    ]);
   }
 
   Widget build(BuildContext context) {
@@ -73,42 +87,46 @@ class _MainscreenState extends State<Mainscreen> {
           ],
         ),
       );
-    } else if (weatherProvider.currentWeather != null) {
+    } else if (weatherProvider.currentWeather != null &&
+        pollutionProvider.currentPollution != null) {
       return SafeArea(
         child: Column(
           children: [
             MainAppBar(),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => WeatherDetailPage(
-                                      weather: weatherProvider.currentWeather!,
-                                      forecast:
-                                          weatherProvider.forecastWeather!,
-                                      hourly: weatherProvider.hourlyWeather,
-                                    )));
-                      },
-                      child: buildWeatherCard(
-                          weather: weatherProvider.currentWeather!),
-                    ),
-                    const SizedBox(height: 16),
-                    //คุณภาพอากาศ
-                    Airqualitycard(
-                      currentPollution: pollutionProvider.currentPollution,
-                      advicemodel: pollutionProvider.adviceModel,
-                    ),
-                    const SizedBox(height: 16),
-                    //คำแนพนำสุขภาพ
-                    _buildHealthCard(pollutionProvider.adviceModel!),
-                    const SizedBox(height: 16),
-                  ],
+              child: RefreshIndicator(
+                onRefresh: _refreshData,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WeatherDetailPage(
+                                        weather: weatherProvider.currentWeather!,
+                                        forecast:
+                                            weatherProvider.forecastWeather!,
+                                        hourly: weatherProvider.hourlyWeather,
+                                      )));
+                        },
+                        child: buildWeatherCard(
+                            weather: weatherProvider.currentWeather!),
+                      ),
+                      const SizedBox(height: 16),
+                      //คุณภาพอากาศ
+                      Airqualitycard(
+                        currentPollution: pollutionProvider.currentPollution,
+                        advicemodel: pollutionProvider.adviceModel,
+                      ),
+                      const SizedBox(height: 16),
+                      //คำแนพนำสุขภาพ
+                      _buildHealthCard(pollutionProvider.adviceModel!),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ),

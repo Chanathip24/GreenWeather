@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:greenweather/model/reviewLikeModel.dart';
 import 'package:greenweather/model/reviewModel.dart';
@@ -23,7 +24,10 @@ class _ReviewPageState extends State<ReviewPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _loadData();
+  }
 
+  Future<void> _loadData() async {
     final provinceProvider = Provider.of<ProvinceProvider>(context);
     final authProvider = Provider.of<AuthenticationProvider>(context);
 
@@ -31,16 +35,45 @@ class _ReviewPageState extends State<ReviewPage> {
     final selectedProvince = provinceProvider.selectProvince;
     final Usermodel? user = authProvider.userdata;
 
-    if (selectedProvince != null &&
-        (!_isInit || selectedProvince != _previousProvince)) {
+    bool provinceChange = selectedProvince != null &&
+        (!_isInit || selectedProvince != _previousProvince);
+    bool userChange = _previousUserdata?.id != user?.id;
+    if (provinceChange || userChange) {
       _previousProvince = selectedProvince;
+      _previousUserdata = user;
       _isInit = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Provider.of<ReviewProvider>(context, listen: false).userLike();
-        await Provider.of<ReviewProvider>(context, listen: false)
-            .getAllReviews(selectedProvince);
+        try {
+          await Future.wait([
+            Provider.of<ReviewProvider>(context, listen: false).userLike(),
+            Provider.of<ReviewProvider>(context, listen: false)
+                .getAllReviews(selectedProvince)
+          ]);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load reviews: ${e.toString()}')),
+          );
+        }
       });
+    }
+  }
+
+  Future<void> _refreshData() async {
+    if (_previousProvince == null) return;
+
+    try {
+      await Future.wait([
+        Provider.of<ReviewProvider>(context, listen: false).userLike(),
+        Provider.of<ReviewProvider>(context, listen: false)
+            .getAllReviews(_previousProvince!)
+      ]);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to refresh data: ${e.toString()}')),
+        );
+      }
     }
   }
 
@@ -78,10 +111,7 @@ class _ReviewPageState extends State<ReviewPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.black54),
-            onPressed: () async {
-              await Provider.of<ReviewProvider>(context, listen: false)
-                  .getAllReviews(_previousProvince!);
-            },
+            onPressed: _refreshData,
           ),
         ],
       ),
@@ -91,12 +121,7 @@ class _ReviewPageState extends State<ReviewPage> {
           Expanded(
             // Add this Expanded widget around the RefreshIndicator
             child: RefreshIndicator(
-              onRefresh: () async {
-                await Provider.of<ReviewProvider>(context, listen: false)
-                    .getAllReviews(_previousProvince!);
-                await Provider.of<ReviewProvider>(context, listen: false)
-                    .userLike();
-              },
+              onRefresh: _refreshData,
               child: reviewProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : reviewProvider.reviews.isNotEmpty
@@ -108,9 +133,11 @@ class _ReviewPageState extends State<ReviewPage> {
                             final Reviewmodel review =
                                 reviewProvider.reviews[index];
                             return ReviewCard(
-                                index: index,
-                                review: review,
-                                reviewProvider: reviewProvider);
+                              index: index,
+                              review: review,
+                              reviewProvider: reviewProvider,
+                              onLikechange: _refreshData,
+                            );
                           },
                         )
                       : Center(
@@ -138,8 +165,12 @@ class _ReviewPageState extends State<ReviewPage> {
         backgroundColor: Colors.green,
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AirQualityForm()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AirQualityForm(
+                        isPop: true,
+                      ))).then((_) => _refreshData());
         },
       ),
     );
@@ -150,11 +181,13 @@ class ReviewCard extends StatefulWidget {
   final int index;
   final Reviewmodel review;
   final ReviewProvider? reviewProvider;
+  final VoidCallback? onLikechange;
   const ReviewCard(
       {super.key,
       required this.index,
       required this.review,
-      this.reviewProvider});
+      this.reviewProvider,
+      this.onLikechange});
 
   @override
   State<ReviewCard> createState() => _ReviewCardState();
@@ -162,19 +195,86 @@ class ReviewCard extends StatefulWidget {
 
 class _ReviewCardState extends State<ReviewCard> {
   @override
-  late int findLikeIndex;
-
+  late bool _isLike;
+  bool _isProcessingLike = false;
   @override
   void initState() {
     super.initState();
-    if (widget.reviewProvider != null) {
-      findLikeIndex = widget.reviewProvider!.userLikedata
-          .indexWhere((post) => post.reviewId == widget.review.id);
-      if (findLikeIndex != -1) {
-        widget.review.isLike = true;
+    _updateLikeStatus();
+  }
+
+  @override
+  void didUpdateWidget(ReviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateLikeStatus();
+  }
+
+  //get like status
+  void _updateLikeStatus() {
+    if (widget.reviewProvider == null) {
+      _isLike = false;
+      return;
+    }
+    final findLikeIndex = widget.reviewProvider?.userLikedata
+        .indexWhere((post) => post.reviewId == widget.review.id);
+
+    _isLike = findLikeIndex != -1;
+
+    //update model
+    if (widget.review.isLike != _isLike) {
+      widget.review.isLike = _isLike;
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    if (_isProcessingLike) return;
+    AuthenticationProvider authProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
+    bool isAuthenticate = authProvider.isAuthenticate;
+
+    if (!isAuthenticate) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("กรุณาเข้าสู่ระบบ"),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+    setState(() {
+      _isProcessingLike = true; //รอโหลดแปป
+      _isLike = !_isLike;
+      widget.review.isLike = _isLike; // อัปเดตค่าใน object
+    });
+
+    try {
+      if (_isLike) {
+        await widget.reviewProvider?.saveLike(
+          Reviewlikemodel(reviewId: widget.review.id!),
+        );
+      } else {
+        await widget.reviewProvider?.deleteLike(
+          Reviewlikemodel(reviewId: widget.review.id!),
+        );
       }
-    } else {
-      findLikeIndex = -1;
+
+      // Call onLikeChanged
+      widget.onLikechange?.call();
+    } catch (e) {
+      // Revert the like status if an error occurred
+      setState(() {
+        _isLike = !_isLike;
+        widget.review.isLike = _isLike;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Failed to update like status: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessingLike = false;
+        });
+      }
     }
   }
 
@@ -224,33 +324,21 @@ class _ReviewCardState extends State<ReviewCard> {
                 const Spacer(),
                 // Like button
                 IconButton(
-                  icon: Icon(
-                    widget.review.isLike
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      widget.review.isLike = !widget.review.isLike;
-                    });
-
-                    if (widget.review.isLike) {
-                      // widget.review.rating = widget.review.rating! + 1;
-
-                      //save user like
-                      widget.reviewProvider!.saveLike(
-                          Reviewlikemodel(reviewId: widget.review.id!));
-                    } else {
-                      // widget.review.rating = widget.review.rating! - 1;
-                      widget.reviewProvider!.deleteLike(
-                          Reviewlikemodel(reviewId: widget.review.id!));
-                      widget.review.isLike = false;
-                    }
-                  },
+                  icon: _isProcessingLike
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.grey.shade700),
+                        )
+                      : Icon(
+                          _isLike ? Icons.favorite : Icons.favorite_border,
+                          size: 22,
+                          color: _isLike ? Colors.red : Colors.grey.shade700,
+                        ),
+                  onPressed: _toggleLike,
                   constraints: const BoxConstraints(),
                   padding: EdgeInsets.zero,
-                  color: Colors.grey.shade700,
                 ),
                 const SizedBox(width: 12),
                 // Share button
