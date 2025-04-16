@@ -169,7 +169,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                       Chip(
                         avatar: Icon(Icons.eco, color: primaryColor, size: 18),
                         label: Text(
-                          'ระดับ ${widget.user?.tier}',
+                          'ระดับ ${widget.user?.tier?.name}',
                           style: TextStyle(
                             color: primaryColor,
                             fontWeight: FontWeight.w500,
