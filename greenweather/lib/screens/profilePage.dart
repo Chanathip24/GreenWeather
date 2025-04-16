@@ -7,7 +7,6 @@ import 'package:greenweather/screens/edituserpage.dart';
 import 'package:greenweather/screens/loginPage.dart';
 import 'package:greenweather/screens/rewardPage.dart';
 import 'package:greenweather/services/time_service.dart';
-
 import 'package:provider/provider.dart';
 
 class GreenUserProfilePage extends StatefulWidget {
@@ -170,7 +169,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                       Chip(
                         avatar: Icon(Icons.eco, color: primaryColor, size: 18),
                         label: Text(
-                          'ระดับ Eco Warrior',
+                          'ระดับ ${widget.user?.tier}',
                           style: TextStyle(
                             color: primaryColor,
                             fontWeight: FontWeight.w500,
