@@ -43,9 +43,9 @@ export const getAllReviews = async (location?: string): Promise<IReview[]> => {
 };
 
 export const addLikeReview = async (
-  data: Partial<IReview>
+  data: reviewLike
 ): Promise<IReview> => {
-  const review: IReview = await reviewModel.updateLikeReview(data);
+  const review: IReview | null = await reviewModel.updateLikeReview(data);
   if (!review) {
     throw new ApiError(httpStatus.NOT_FOUND, "Review not found.");
   }

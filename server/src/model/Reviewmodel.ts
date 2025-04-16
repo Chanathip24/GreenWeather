@@ -60,42 +60,40 @@ class Reviewmodel {
     try {
       const response = await prisma.reviewLike.create({
         data: {
-          userId: data.userId,
+          userId: data.userId!,
           reviewId: data.reviewId,
         },
       });
       return response;
     } catch (error) {
-      
       throw new ApiError(
         httpStatus.INTERNAL_SERVER_ERROR,
         "Failed to like the post."
       );
     }
   }
-    //delete like for user
-    async deleteLikeuser(data: reviewLike): Promise<reviewLike> {
-      try {
-        const response = await prisma.reviewLike.delete({
-          where: {
-            userId_reviewId: {
-              userId: data.userId,
-              reviewId: data.reviewId,
-            },
+  //delete like for user
+  async deleteLikeuser(data: reviewLike): Promise<reviewLike> {
+    try {
+      const response = await prisma.reviewLike.delete({
+        where: {
+          userId_reviewId: {
+            userId: data.userId!,
+            reviewId: data.reviewId,
           },
-        });
-        return response;
-      } catch (error) {
-        
-        throw new ApiError(
-          httpStatus.INTERNAL_SERVER_ERROR,
-          "Failed to like the post."
-        );
-      }
+        },
+      });
+      return response;
+    } catch (error) {
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to like the post."
+      );
     }
+  }
 
   //get like for user
-  async getLikeuser(id : string): Promise<reviewLike[]> {
+  async getLikeuser(id: string): Promise<reviewLike[]> {
     try {
       const response = await prisma.reviewLike.findMany({
         where: { userId: id },
@@ -104,10 +102,9 @@ class Reviewmodel {
           reviewId: true,
         },
       });
-      
-      return response
+
+      return response;
     } catch (error) {
-      
       throw new ApiError(
         httpStatus.INTERNAL_SERVER_ERROR,
         "Failed to get data"
@@ -115,18 +112,18 @@ class Reviewmodel {
     }
   }
   //update like and dislike
-  async updateLikeReview(data: Partial<IReview>): Promise<IReview> {
-    const current = await this.findReviewById(data.id as number);
-    if (!current) throw new ApiError(httpStatus.NOT_FOUND, "Review not found");
+  async updateLikeReview(data: reviewLike): Promise<IReview | null> {
+    const currentReview = await this.findReviewById(data.reviewId as number);
+    if (!currentReview) return null;
 
-    const newRating = Math.max(0, current.rating! + (data.rating || 0));
-    const newDislike = Math.max(0, current.dislike! + (data.dislike || 0));
+    const newRating = Math.max(0, currentReview.rating! + (data.rating || 0));
+    // const newDislike = Math.max(0, currentReview.dislike! + (data.dislike || 0));
 
     return await prisma.review.update({
-      where: { id: data.id },
+      where: { id: data.reviewId },
       data: {
         rating: newRating,
-        dislike: newDislike,
+        // dislike: newDislike,
       },
     });
   }

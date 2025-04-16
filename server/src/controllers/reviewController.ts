@@ -81,7 +81,7 @@ class Reviewcontroller {
     next: NextFunction
   ): Promise<void> {
     try {
-      const data: Partial<IReview> = req.body;
+      const data: reviewLike = req.body;
       const review = await addLikeReview(data);
 
       res.status(httpStatus.OK).json({

@@ -10,6 +10,7 @@ export interface IReview{
 }
 
 export interface reviewLike{
-    userId : string;
+    userId? : string;
     reviewId : number;
+    rating? : number;
 }

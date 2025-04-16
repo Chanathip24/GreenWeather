@@ -13,8 +13,8 @@ export const getAllUsers = async (includeEmail: boolean = true) => {
   return users;
 };
 
-export const getUserbyId = async (id: string) => {
-  const user = await userModel.getUserById(id);
+export const getUserbyId = async (id: string) : Promise<UserResponse> => {
+  const user : UserResponse | null = await userModel.getUserById(id);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }

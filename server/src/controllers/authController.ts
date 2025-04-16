@@ -1,3 +1,4 @@
+
 import { logoutService, refreshTokenService } from "./../services/authService";
 import type { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
@@ -6,6 +7,7 @@ import { loginService, registerService } from "../services/authService";
 import { httpStatus } from "../utils/Error";
 import type { userWithToken } from "../types/tokenType";
 import type { UserResponse } from "../types/userType";
+import { getUserbyId } from "../services/userService";
 
 dotenv.config();
 
@@ -118,7 +120,7 @@ export const getUserController = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const user: UserResponse = req.user;
+    let user: UserResponse = req.user;
     if (!user) {
       res.status(httpStatus.UNAUTHORIZED).json({
         status: "failed",
@@ -126,9 +128,12 @@ export const getUserController = async (
       });
       return;
     }
+    //fetch user data using id
+    const curUser: UserResponse = await getUserbyId(user.id);
+
     res.status(httpStatus.OK).json({
       status: "success",
-      data: { user: user },
+      data: { user: curUser },
       message: "Get User Successfully",
     });
   } catch (error) {
