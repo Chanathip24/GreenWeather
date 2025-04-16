@@ -8,19 +8,20 @@ class Reviewmodel {
   final int? dislike;
   final String detail;
   final String? ownerName;
+  final double? cost;
   bool isLike = false;
 
-  Reviewmodel({
-    this.id,
-    required this.aqi,
-    required this.userId,
-    required this.location,
-    this.createdAt,
-    this.rating,
-    this.dislike,
-    required this.detail,
-    this.ownerName,
-  });
+  Reviewmodel(
+      {this.id,
+      required this.aqi,
+      required this.userId,
+      required this.location,
+      this.createdAt,
+      this.rating,
+      this.dislike,
+      required this.detail,
+      this.ownerName,
+      this.cost});
 
   factory Reviewmodel.fromJson(Map<String, dynamic> json) {
     return Reviewmodel(

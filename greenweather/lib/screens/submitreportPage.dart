@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:greenweather/model/reviewModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
@@ -52,6 +55,14 @@ class _AirQualityFormState extends State<AirQualityForm> {
         // //get all user again
         // await Provider.of<UserlistProvider>(context, listen: false)
         //     .getAllUser();
+
+        //add point
+        final reward =
+            int.tryParse(dotenv.env['POINT_REVIEW_REWARD'] ?? '0') ?? 0;
+
+        authProvider.userdata?.points =
+            (authProvider.userdata?.points ?? 0) + reward;
+        print(authProvider.userdata?.points);
 
         if (reviewProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(

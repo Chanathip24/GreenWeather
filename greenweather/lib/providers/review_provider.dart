@@ -96,6 +96,7 @@ class ReviewProvider extends ChangeNotifier {
     }
   }
 
+  //create review
   Future<void> addReview(Reviewmodel review) async {
     _isLoading = true;
     _error = null;
@@ -108,6 +109,23 @@ class ReviewProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //update post's like
+  Future<void> postLike(Reviewlikemodel like) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _reviewService.updateLikereview(like);
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
       notifyListeners();
     }
   }

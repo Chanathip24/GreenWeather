@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:greenweather/model/reviewLikeModel.dart';
 import 'package:greenweather/model/reviewModel.dart';
 
 class ReviewService {
@@ -31,6 +32,20 @@ class ReviewService {
       }
     } catch (e) {
       throw Exception("Error adding review: $e");
+    }
+  }
+
+  //update review like
+  Future<void> updateLikereview(Reviewlikemodel like) async {
+    try {
+      final response =
+          await _dio.put('$_apiUrl/review/addlikereview', data: like.toJson());
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to like/unlike the post: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception("Error like/unlike the post: $e");
     }
   }
 }

@@ -39,6 +39,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
 
     final AuthenticationProvider authenticationProvider =
         Provider.of<AuthenticationProvider>(context);
+
     final curuser = authenticationProvider.userdata;
 
     if (curuser != null && (!_isInit || curuser != _userdata)) {
@@ -216,7 +217,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                 const SizedBox(width: 12),
                                 userIndex != -1
                                     ? Text(
-                                        '${userList[userIndex].points}',
+                                        '${widget.user?.points}',
                                         style: const TextStyle(
                                           fontSize: 36,
                                           fontWeight: FontWeight.bold,
@@ -241,8 +242,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => RewardPage(
-                                          points:
-                                              userList[userIndex].points ?? 0)),
+                                          points: widget.user?.points ?? 0)),
                                 );
                               },
                               icon: const Icon(Icons.redeem),

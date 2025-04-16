@@ -7,6 +7,7 @@ import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/review_provider.dart';
 import 'package:greenweather/screens/submitreportPage.dart';
+import 'package:greenweather/utils/mock_services.dart';
 import 'package:greenweather/widgets/Appbar.dart';
 import 'package:provider/provider.dart';
 
@@ -119,44 +120,41 @@ class _ReviewPageState extends State<ReviewPage> {
         children: [
           MainAppBar(),
           Expanded(
-            // Add this Expanded widget around the RefreshIndicator
             child: RefreshIndicator(
               onRefresh: _refreshData,
-              child: reviewProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : reviewProvider.reviews.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: reviewProvider.reviews.length,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          itemBuilder: (context, index) {
-                            final Reviewmodel review =
-                                reviewProvider.reviews[index];
-                            return ReviewCard(
-                              index: index,
-                              review: review,
-                              reviewProvider: reviewProvider,
-                              onLikechange: _refreshData,
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.error_outline,
-                                  size: 60, color: Colors.red),
-                              const SizedBox(height: 16),
-                              Text(
-                                'ไม่พบรีวิวในจังหวัดนี้',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
+              child: reviewProvider.reviews.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: reviewProvider.reviews.length,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      itemBuilder: (context, index) {
+                        final Reviewmodel review =
+                            reviewProvider.reviews[index];
+                        return ReviewCard(
+                          index: index,
+                          review: review,
+                          reviewProvider: reviewProvider,
+                          onLikechange: _refreshData,
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              size: 60, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(
+                            'ไม่พบรีวิวในจังหวัดนี้',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black54,
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                    ),
             ),
           ),
         ],
@@ -194,9 +192,9 @@ class ReviewCard extends StatefulWidget {
 }
 
 class _ReviewCardState extends State<ReviewCard> {
-  @override
   late bool _isLike;
   bool _isProcessingLike = false;
+
   @override
   void initState() {
     super.initState();
@@ -220,7 +218,6 @@ class _ReviewCardState extends State<ReviewCard> {
 
     _isLike = findLikeIndex != -1;
 
-    //update model
     if (widget.review.isLike != _isLike) {
       widget.review.isLike = _isLike;
     }
@@ -239,41 +236,74 @@ class _ReviewCardState extends State<ReviewCard> {
       ));
       return;
     }
+
+    // Before state
+    final originalLikeState = _isLike;
+    final originalRating = widget.review.rating;
+
     setState(() {
-      _isProcessingLike = true; //รอโหลดแปป
+      _isProcessingLike = true;
       _isLike = !_isLike;
-      widget.review.isLike = _isLike; // อัปเดตค่าใน object
+      widget.review.isLike = _isLike;
+
+      // Update the rating
+      if (_isLike) {
+        widget.review.rating = (widget.review.rating ?? 0) + 1;
+      } else {
+        widget.review.rating = (widget.review.rating ?? 0) - 1;
+      }
     });
 
     try {
       if (_isLike) {
-        await widget.reviewProvider?.saveLike(
-          Reviewlikemodel(reviewId: widget.review.id!),
-        );
+        if (widget.reviewProvider != null) {
+          await Future.wait([
+            widget.reviewProvider!.saveLike(
+              Reviewlikemodel(reviewId: widget.review.id!),
+            ),
+            widget.reviewProvider!.postLike(
+              Reviewlikemodel(reviewId: widget.review.id!, rating: 1),
+            )
+          ]);
+        }
       } else {
-        await widget.reviewProvider?.deleteLike(
-          Reviewlikemodel(reviewId: widget.review.id!),
-        );
+        if (widget.reviewProvider != null) {
+          await Future.wait([
+            widget.reviewProvider!.deleteLike(
+              Reviewlikemodel(reviewId: widget.review.id!),
+            ),
+            widget.reviewProvider!.postLike(
+              Reviewlikemodel(reviewId: widget.review.id!, rating: -1),
+            )
+          ]);
+        }
       }
 
-      // Call onLikeChanged
-      widget.onLikechange?.call();
-    } catch (e) {
-      // Revert the like status if an error occurred
-      setState(() {
-        _isLike = !_isLike;
-        widget.review.isLike = _isLike;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Failed to update like status: ${e.toString()}')),
-      );
-    } finally {
       if (mounted) {
         setState(() {
           _isProcessingLike = false;
         });
+
+        if (widget.onLikechange != null) {
+          if (mounted) {
+            widget.onLikechange!();
+          }
+        }
+      }
+    } catch (e) {
+      // Revert if an error occurred
+      if (mounted) {
+        setState(() {
+          _isLike = originalLikeState;
+          widget.review.isLike = originalLikeState;
+          widget.review.rating = originalRating;
+          _isProcessingLike = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to update like status: ${e.toString()}')),
+        );
       }
     }
   }
@@ -313,7 +343,7 @@ class _ReviewCardState extends State<ReviewCard> {
                       ),
                     ),
                     Text(
-                      '${widget.review.createdAt?.split('T')[0].split("-")[2]} ${_getMonth(int.parse(widget.review.createdAt!.split('-')[1]))}',
+                      '${widget.review.createdAt?.split('T')[0].split("-")[2]} ${MockServices.getMonth(int.parse(widget.review.createdAt!.split('-')[1]))}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -373,7 +403,7 @@ class _ReviewCardState extends State<ReviewCard> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getAqiColor(widget.review.aqi ?? 0),
+                    color: MockServices.getAqiColor(widget.review.aqi ?? 0),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -409,13 +439,13 @@ class _ReviewCardState extends State<ReviewCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _getWeatherIcon(widget.index),
+                        MockServices.getWeatherIcon(widget.index),
                         size: 14,
                         color: Colors.blue.shade700,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _getWeatherText(widget.index),
+                        MockServices.getWeatherText(widget.index),
                         style: TextStyle(
                           color: Colors.blue.shade700,
                           fontWeight: FontWeight.w500,
@@ -439,74 +469,5 @@ class _ReviewCardState extends State<ReviewCard> {
         ),
       ),
     );
-  }
-
-  String _getReviewText(int index) {
-    final List<String> reviews = [
-      'อากาศดีและบริการประทับใจมาก ทางเดินเล่นริมหาดสะอาด บรรยากาศดี เหมาะกับการพักผ่อนในวันหยุด',
-      'สภาพอากาศวันนี้ค่อนข้างร้อน แต่คุณภาพอากาศโดยรวมดี ลมพัดเย็นสบายในช่วงเย็น',
-      'ฝนตกหนักในช่วงบ่าย แต่อากาศเย็นสบายหลังฝนหยุด น้ำไม่ท่วมขังบริเวณถนนหลัก',
-      'อากาศแห้งมาก ควรพกน้ำติดตัวและหลีกเลี่ยงอยู่กลางแจ้งนานๆ ในช่วงกลางวัน',
-    ];
-    return reviews[index % reviews.length];
-  }
-
-  String _getMonth(int month) {
-    const List<String> months = [
-      'ม.ค.',
-      'ก.พ.',
-      'มี.ค.',
-      'เม.ย.',
-      'พ.ค.',
-      'มิ.ย.',
-      'ก.ค.',
-      'ส.ค.',
-      'ก.ย.',
-      'ต.ค.',
-      'พ.ย.',
-      'ธ.ค.'
-    ];
-    return months[month - 1];
-  }
-
-  Color _getAqiColor(int aqi) {
-    final List<Color> colors = [
-      Colors.green.shade400,
-      Colors.orange,
-      Colors.amber.shade700,
-      Colors.red.shade400,
-      Colors.purple.shade400,
-    ];
-    if (aqi <= 50) {
-      return colors[0];
-    } else if (aqi <= 100) {
-      return colors[1];
-    } else if (aqi <= 150) {
-      return colors[2];
-    } else if (aqi <= 200) {
-      return colors[3];
-    } else {
-      return colors[4];
-    }
-  }
-
-  IconData _getWeatherIcon(int index) {
-    final List<IconData> icons = [
-      Icons.wb_sunny_outlined,
-      Icons.cloud_outlined,
-      Icons.grain,
-      Icons.thermostat,
-    ];
-    return icons[index % icons.length];
-  }
-
-  String _getWeatherText(int index) {
-    final List<String> weather = [
-      'แดดจัด',
-      'มีเมฆมาก',
-      'ฝนตก',
-      'ร้อนมาก',
-    ];
-    return weather[index % weather.length];
   }
 }
