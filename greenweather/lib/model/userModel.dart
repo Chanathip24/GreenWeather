@@ -7,16 +7,17 @@ class Usermodel {
   String? email;
   String? password;
   int? points;
+  String? role;
   TierModel? tier;
 
-  Usermodel({
-    this.id,
-    this.fname,
-    this.lname,
-    this.email,
-    this.password,
-    this.points,
-  }) {
+  Usermodel(
+      {this.id,
+      this.fname,
+      this.lname,
+      this.email,
+      this.password,
+      this.points,
+      this.role}) {
     assignTier();
   }
 
@@ -27,12 +28,12 @@ class Usermodel {
 
   factory Usermodel.fromJson(Map<String, dynamic> json) {
     return Usermodel(
-      id: json['id'],
-      fname: json['fname'],
-      lname: json['lname'],
-      email: json['email'],
-      points: json['points'],
-    );
+        id: json['id'],
+        fname: json['fname'],
+        lname: json['lname'],
+        email: json['email'],
+        points: json['points'],
+        role: json['role']);
   }
   //tojson
   Map<String, dynamic> toJson() {

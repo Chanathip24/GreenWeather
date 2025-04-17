@@ -1,84 +1,331 @@
 import 'package:flutter/material.dart';
-import '../model/Rewardmodel.dart';
+import 'package:greenweather/model/Redemptionmodel.dart';
+import 'dart:async';
 
-class RewardPage extends StatefulWidget {
+import 'package:greenweather/model/Rewardmodel.dart';
+import 'package:greenweather/screens/rewardHistoryPage.dart';
+
+// Main Rewards Page
+class RewardsPage extends StatefulWidget {
   final int points;
-  const RewardPage({super.key,required this.points});
+  const RewardsPage({Key? key, required this.points}) : super(key: key);
 
   @override
-  State<RewardPage> createState() => _RewardPageState();
+  State<RewardsPage> createState() => _RewardsPageState();
 }
 
-class _RewardPageState extends State<RewardPage> {
-  // Sample reward items
-  final List<RewardItem> _RewardItems = [
-    RewardItem(
-      name: 'Food_name',
-      imageUrl:
-          'https://marketplace.canva.com/EAGD4y-vJW0/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%A3%E0%B8%B1%E0%B8%81-%E0%B8%82%E0%B8%99%E0%B8%A1%E0%B9%84%E0%B8%97%E0%B8%A2-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-OnN1K7iWIU8.jpg',
-      price: 120,
-    ),
-    RewardItem(
-      name: 'Food_name',
-      imageUrl:
-          'https://marketplace.canva.com/EAGFex9bXyQ/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%AA%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%A5%E0%B8%94-%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%82%E0%B8%A1%E0%B8%8A%E0%B8%B1%E0%B9%88%E0%B8%99-%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2-%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-Ghh3Qln7DEw.jpg',
-      price: 100,
-    ),
-    RewardItem(
-      name: 'Food_name',
-      imageUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDOAGu8o_xaCmxPAWLX3LQYIRSY0CYkekykA&s',
-      price: 120,
-    ),
-    RewardItem(
-      name: 'Food_name',
-      imageUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReOZEe2pVA7paKluQxQ6x5BP1sArbqly95tg&s',
-      price: 120,
-    ),
+class _RewardsPageState extends State<RewardsPage> {
+  int _selectedCategoryIndex = 0;
+  final List<String> _categories = ['All', 'Food', 'Vouchers', 'Digital'];
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  // Mock data - replace with API call
+  final List<Reward> _allRewards = [
+    Reward(
+        id: 1,
+        name: 'Amazon Gift Card',
+        description: 'Use this to purchase items on Amazon',
+        imageUrl:
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDOAGu8o_xaCmxPAWLX3LQYIRSY0CYkekykA&s',
+        cost: 500,
+        type: 'DIGITAL',
+        values: [
+          RewardItem(
+              id: 1,
+              value: "Yahoo",
+              isUsed: false,
+              rewardId: 1,
+              createdAt: DateTime.parse("2025-04-17T06:17:32.416Z"))
+        ]),
+    Reward(
+        id: 2,
+        name: 'Coffee Voucher',
+        description: 'Free coffee at any branch',
+        imageUrl:
+            'https://marketplace.canva.com/EAGFex9bXyQ/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%AA%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%A5%E0%B8%94-%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%82%E0%B8%A1%E0%B8%8A%E0%B8%B1%E0%B9%88%E0%B8%99-%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2-%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-Ghh3Qln7DEw.jpg',
+        cost: 300,
+        type: 'FOOD',
+        values: []),
+    Reward(
+        id: 3,
+        name: 'Movie Ticket',
+        description: 'One free movie ticket',
+        imageUrl:
+            'https://marketplace.canva.com/EAGD4y-vJW0/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%A3%E0%B8%B1%E0%B8%81-%E0%B8%82%E0%B8%99%E0%B8%A1%E0%B9%84%E0%B8%97%E0%B8%A2-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-OnN1K7iWIU8.jpg',
+        cost: 400,
+        type: 'VOUCHER',
+        values: []),
+    Reward(
+        id: 4,
+        name: 'Spotify Premium',
+        description: '1 month subscription',
+        imageUrl:
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReOZEe2pVA7paKluQxQ6x5BP1sArbqly95tg&s',
+        cost: 600,
+        type: 'DIGITAL',
+        values: []),
   ];
 
-  //หมวดหมู่
-  int _selectedCategoryIndex = 0;
-  final List<String> _categories = ['ทั้งหมด', 'อาหาร', 'บัตรกำนัล', 'ของหวาน'];
+  List<Reward> _filteredRewards = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRewards();
+  }
+
+  Future<void> _fetchRewards() async {
+    // Simulate API call
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    // For the mock implementation:
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    setState(() {
+      _filterRewards();
+      _isLoading = false;
+    });
+  }
+
+  void _filterRewards() {
+    if (_selectedCategoryIndex == 0) {
+      _filteredRewards = List.from(_allRewards);
+    } else {
+      final category = _categories[_selectedCategoryIndex].toUpperCase();
+      _filteredRewards = _allRewards
+          .where((item) =>
+              item.type.toUpperCase().contains(category) ||
+              (category == 'VOUCHERS' &&
+                  item.type.toUpperCase().contains('VOUCHER')))
+          .toList();
+    }
+  }
+
+  Future<void> _redeemReward(Reward reward) async {
+    // Check if user has enough points
+    if (widget.points < reward.cost) {
+      _showInsufficientPointsDialog(reward);
+      return;
+    }
+
+    // Check if there are rewards left
+    final int totalAvaliable =
+        reward.values?.where((item) => item.isUsed != true).length ?? -1;
+
+    if (totalAvaliable <= 0) {
+      _showNoRewardsLeftDialog();
+      return;
+    }
+
+    // Show confirmation dialog
+    bool confirmed = await _showConfirmationDialog(reward);
+    if (!confirmed) {
+      return;
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    await Future.delayed(
+        const Duration(milliseconds: 800)); // Simulate API call
+    Navigator.pop(context); // Close loading dialog
+    _showSuccessDialog(reward);
+  }
+
+  Future<bool> _showConfirmationDialog(Reward reward) async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Redeem ${reward.name}?'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Use ${reward.cost} points to redeem this reward?'),
+                const SizedBox(height: 12),
+                Text(
+                  'Points remaining after redemption: ${widget.points - reward.cost}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirm'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  void _showSuccessDialog(Reward reward) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Redemption Successful!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle, color: Colors.green, size: 64),
+            const SizedBox(height: 16),
+            Text('You have successfully redeemed ${reward.name}'),
+            const SizedBox(height: 12),
+            const Text(
+              'Check your "My Rewards" section to view your reward details',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const MyRewardsPage()));
+            },
+            child: const Text('View My Rewards'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showInsufficientPointsDialog(Reward reward) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Insufficient Points'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('You need ${reward.cost} points to redeem this reward.'),
+            const SizedBox(height: 8),
+            Text('Your current points: ${widget.points}'),
+            const SizedBox(height: 8),
+            Text('Points needed: ${reward.cost - widget.points}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNoRewardsLeftDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('No Rewards Left'),
+        content: const Text('Sorry, this reward is out of stock.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey[100],
-        appBar: AppBar(
-          title: const Text(
-            'แลกของรางวัล',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: const Text(
+          'Rewards Center',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        body: SafeArea(
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.card_giftcard),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MyRewardsPage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _fetchRewards,
+        child: SafeArea(
           child: Column(
             children: [
-              _buildScore(),
+              _buildPointsDisplay(),
               _buildCategorySelector(),
-              Expanded(
-                child: _buildFoodGrid(),
-              ),
+              if (_isLoading)
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_errorMessage.isNotEmpty)
+                Expanded(
+                  child: Center(child: Text(_errorMessage)),
+                )
+              else if (_filteredRewards.isEmpty)
+                const Expanded(
+                  child:
+                      Center(child: Text('No rewards found in this category')),
+                )
+              else
+                Expanded(
+                  child: _buildRewardsGrid(),
+                ),
             ],
           ),
-        )
-
- 
-        );
+        ),
+      ),
+    );
   }
 
-  Widget _buildScore() {
+  Widget _buildPointsDisplay() {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: Row(
         children: [
           const Text(
-            'แต้มของคุณ :',
+            'Your Points:',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -92,12 +339,20 @@ class _RewardPageState extends State<RewardPage> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              '${widget.points} แต้ม',
-              style: TextStyle(
+              '${widget.points} points',
+              style: const TextStyle(
                 color: Colors.green,
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: () {
+              // Navigate to points history (implement this later)
+            },
+            icon: const Icon(Icons.history),
+            label: const Text('History'),
           ),
         ],
       ),
@@ -110,7 +365,7 @@ class _RewardPageState extends State<RewardPage> {
       color: Colors.white,
       margin: const EdgeInsets.only(top: 1),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: _categories.length,
@@ -119,6 +374,7 @@ class _RewardPageState extends State<RewardPage> {
               onTap: () {
                 setState(() {
                   _selectedCategoryIndex = index;
+                  _filterRewards();
                 });
               },
               child: Container(
@@ -149,7 +405,7 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 
-  Widget _buildFoodGrid() {
+  Widget _buildRewardsGrid() {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: GridView.builder(
@@ -159,16 +415,21 @@ class _RewardPageState extends State<RewardPage> {
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
-        itemCount: _RewardItems.length,
+        itemCount: _filteredRewards.length,
         itemBuilder: (context, index) {
-          final food = _RewardItems[index];
-          return _buildFoodCard(food);
+          final reward = _filteredRewards[index];
+          return _buildRewardCard(reward);
         },
       ),
     );
   }
 
-  Widget _buildFoodCard(RewardItem food) {
+  Widget _buildRewardCard(Reward reward) {
+    final bool canAfford = widget.points >= reward.cost;
+    final int totalAvaliable =
+        reward.values?.where((item) => item.isUsed != true).length ?? -1;
+    final bool isAvailable = totalAvaliable > 0;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -185,6 +446,7 @@ class _RewardPageState extends State<RewardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Image with availability overlay
           Stack(
             children: [
               ClipRRect(
@@ -193,22 +455,87 @@ class _RewardPageState extends State<RewardPage> {
                   topRight: Radius.circular(16),
                 ),
                 child: Image.network(
-                  food.imageUrl,
+                  reward.imageUrl,
                   height: 100,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 100,
+                      color: Colors.grey[300],
+                      child:
+                          const Center(child: Icon(Icons.image_not_supported)),
+                    );
+                  },
                 ),
               ),
+              // Out of stock overlay
+              if (!isAvailable)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'OUT OF STOCK',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              // Limited stock indicator
+              if (isAvailable && totalAvaliable < 10)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Only ${totalAvaliable} left',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
-          // Food details
+          // Reward details
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  food.name,
+                  reward.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -218,35 +545,38 @@ class _RewardPageState extends State<RewardPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '฿${food.price.toInt()}',
+                  '${reward.cost} points',
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: canAfford ? Colors.green : Colors.red,
                     fontSize: 14,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('แลก ${food.name} เรียบร้อยแล้ว!'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
+                    onPressed: (canAfford && isAvailable)
+                        ? () => _redeemReward(reward)
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
+                      disabledBackgroundColor: Colors.grey[300],
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'แลก',
-                      style: TextStyle(color: Colors.white),
+                    child: Text(
+                      isAvailable
+                          ? (canAfford ? 'Redeem' : 'Not enough points')
+                          : 'Out of stock',
+                      style: TextStyle(
+                        color: (canAfford && isAvailable)
+                            ? Colors.white
+                            : Colors.grey[700],
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
