@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:greenweather/model/rewardModel.dart';
+import 'package:greenweather/model/Rewardmodel.dart';
+import 'package:greenweather/providers/reward_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddEditRewardPage extends StatefulWidget {
   final Reward? reward;
@@ -51,8 +53,6 @@ class _AddEditRewardPageState extends State<AddEditRewardPage> {
     setState(() => _isLoading = true);
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-
       //model
       final Reward rewardData = Reward(
         id: widget.reward?.id ?? 999,
@@ -64,17 +64,27 @@ class _AddEditRewardPageState extends State<AddEditRewardPage> {
       );
 
       //service
+      if (widget.reward == null) {
+        //create
+        await Provider.of<RewardProvider>(context, listen: false)
+            .createReward(rewardData);
+      } else {
+        //update
+        await Provider.of<RewardProvider>(context, listen: false)
+            .updateReward(rewardData);
+      }
 
-      if (mounted) {
+      if (mounted &&
+          Provider.of<RewardProvider>(context, listen: false).error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(widget.reward == null
-                ? 'เพิ่มรางวัลสำเร็จ (mock)'
-                : 'แก้ไขรางวัลสำเร็จ (mock)'),
+                ? 'เพิ่มรางวัลสำเร็จ'
+                : 'แก้ไขรางวัลสำเร็จ'),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, rewardData);
+        Navigator.pop(context);
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

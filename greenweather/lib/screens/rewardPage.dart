@@ -3,12 +3,15 @@ import 'package:greenweather/model/Redemptionmodel.dart';
 import 'dart:async';
 
 import 'package:greenweather/model/Rewardmodel.dart';
+import 'package:greenweather/providers/review_provider.dart';
+import 'package:greenweather/providers/reward_provider.dart';
 import 'package:greenweather/screens/rewardHistoryPage.dart';
+import 'package:provider/provider.dart';
 
 // Main Rewards Page
 class RewardsPage extends StatefulWidget {
   final int points;
-  const RewardsPage({Key? key, required this.points}) : super(key: key);
+  const RewardsPage({super.key, required this.points});
 
   @override
   State<RewardsPage> createState() => _RewardsPageState();
@@ -16,78 +19,30 @@ class RewardsPage extends StatefulWidget {
 
 class _RewardsPageState extends State<RewardsPage> {
   int _selectedCategoryIndex = 0;
+  //categories
   final List<String> _categories = ['All', 'Food', 'Vouchers', 'Digital'];
-  bool _isLoading = true;
-  String _errorMessage = '';
+  List<Reward?> _allRewards = [];
 
   // Mock data - replace with API call
-  final List<Reward> _allRewards = [
-    Reward(
-        id: 1,
-        name: 'Amazon Gift Card',
-        description: 'Use this to purchase items on Amazon',
-        imageUrl:
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDOAGu8o_xaCmxPAWLX3LQYIRSY0CYkekykA&s',
-        cost: 500,
-        type: 'DIGITAL',
-        values: [
-          RewardItem(
-              id: 1,
-              value: "Yahoo",
-              isUsed: false,
-              rewardId: 1,
-              createdAt: DateTime.parse("2025-04-17T06:17:32.416Z"))
-        ]),
-    Reward(
-        id: 2,
-        name: 'Coffee Voucher',
-        description: 'Free coffee at any branch',
-        imageUrl:
-            'https://marketplace.canva.com/EAGFex9bXyQ/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%AA%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%A5%E0%B8%94-%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%82%E0%B8%A1%E0%B8%8A%E0%B8%B1%E0%B9%88%E0%B8%99-%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2-%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-Ghh3Qln7DEw.jpg',
-        cost: 300,
-        type: 'FOOD',
-        values: []),
-    Reward(
-        id: 3,
-        name: 'Movie Ticket',
-        description: 'One free movie ticket',
-        imageUrl:
-            'https://marketplace.canva.com/EAGD4y-vJW0/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%A3%E0%B8%B1%E0%B8%81-%E0%B8%82%E0%B8%99%E0%B8%A1%E0%B9%84%E0%B8%97%E0%B8%A2-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-OnN1K7iWIU8.jpg',
-        cost: 400,
-        type: 'VOUCHER',
-        values: []),
-    Reward(
-        id: 4,
-        name: 'Spotify Premium',
-        description: '1 month subscription',
-        imageUrl:
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReOZEe2pVA7paKluQxQ6x5BP1sArbqly95tg&s',
-        cost: 600,
-        type: 'DIGITAL',
-        values: []),
-  ];
 
-  List<Reward> _filteredRewards = [];
+  List<Reward?> _filteredRewards = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchRewards();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadRewards();
+    });
   }
 
-  Future<void> _fetchRewards() async {
-    // Simulate API call
-    setState(() {
-      _isLoading = true;
-      _errorMessage = '';
-    });
-
-    // For the mock implementation:
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
-    setState(() {
-      _filterRewards();
-      _isLoading = false;
-    });
+  Future<void> _loadRewards() async {
+    RewardProvider rewardProvider =
+        Provider.of<RewardProvider>(context, listen: false);
+    await rewardProvider.getRewards();
+    _allRewards = rewardProvider.rewardData;
+    if (_selectedCategoryIndex == 0) {
+      _filteredRewards = List.from(_allRewards);
+    }
   }
 
   void _filterRewards() {
@@ -97,7 +52,7 @@ class _RewardsPageState extends State<RewardsPage> {
       final category = _categories[_selectedCategoryIndex].toUpperCase();
       _filteredRewards = _allRewards
           .where((item) =>
-              item.type.toUpperCase().contains(category) ||
+              item!.type.toUpperCase().contains(category) ||
               (category == 'VOUCHERS' &&
                   item.type.toUpperCase().contains('VOUCHER')))
           .toList();
@@ -105,7 +60,6 @@ class _RewardsPageState extends State<RewardsPage> {
   }
 
   Future<void> _redeemReward(Reward reward) async {
-    // Check if user has enough points
     if (widget.points < reward.cost) {
       _showInsufficientPointsDialog(reward);
       return;
@@ -133,9 +87,21 @@ class _RewardsPageState extends State<RewardsPage> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    await Future.delayed(
-        const Duration(milliseconds: 800)); // Simulate API call
+    //provider
+    final RewardProvider rewardProvider =
+        Provider.of<RewardProvider>(context, listen: false);
+    //redeem
+    await rewardProvider
+        .redeem(Redemption(rewardId: reward.id)); // Simulate API call
+
     Navigator.pop(context); // Close loading dialog
+
+    //if failed
+    if (rewardProvider.error != null) {
+      _showFailDialog(reward);
+      return;
+    }
+    //if success
     _showSuccessDialog(reward);
   }
 
@@ -185,6 +151,40 @@ class _RewardsPageState extends State<RewardsPage> {
             const SizedBox(height: 12),
             const Text(
               'Check your "My Rewards" section to view your reward details',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const MyRewardsPage()));
+            },
+            child: const Text('View My Rewards'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFailDialog(Reward reward) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Redemption Failed!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cancel, color: Colors.green, size: 64),
+            const SizedBox(height: 16),
+            Text('You failed to  ${reward.name}'),
+            const SizedBox(height: 12),
+            const Text(
+              'Please try again later',
               textAlign: TextAlign.center,
             ),
           ],
@@ -265,6 +265,7 @@ class _RewardsPageState extends State<RewardsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final rewardProvider = Provider.of<RewardProvider>(context);
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -288,19 +289,27 @@ class _RewardsPageState extends State<RewardsPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _fetchRewards,
+        onRefresh: () async {
+          try {
+            _loadRewards();
+          } catch (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error refreshing rewards: $error')),
+            );
+          }
+        },
         child: SafeArea(
           child: Column(
             children: [
               _buildPointsDisplay(),
               _buildCategorySelector(),
-              if (_isLoading)
+              if (rewardProvider.isLoading)
                 const Expanded(
                   child: Center(child: CircularProgressIndicator()),
                 )
-              else if (_errorMessage.isNotEmpty)
+              else if (rewardProvider.error != null)
                 Expanded(
-                  child: Center(child: Text(_errorMessage)),
+                  child: Center(child: Text(rewardProvider.error!)),
                 )
               else if (_filteredRewards.isEmpty)
                 const Expanded(
@@ -418,7 +427,7 @@ class _RewardsPageState extends State<RewardsPage> {
         itemCount: _filteredRewards.length,
         itemBuilder: (context, index) {
           final reward = _filteredRewards[index];
-          return _buildRewardCard(reward);
+          return _buildRewardCard(reward!);
         },
       ),
     );
@@ -455,7 +464,7 @@ class _RewardsPageState extends State<RewardsPage> {
                   topRight: Radius.circular(16),
                 ),
                 child: Image.network(
-                  reward.imageUrl,
+                  reward.imageUrl ?? "",
                   height: 100,
                   width: double.infinity,
                   fit: BoxFit.cover,

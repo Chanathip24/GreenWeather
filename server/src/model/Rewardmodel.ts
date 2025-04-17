@@ -72,17 +72,17 @@ class Rewardmodel {
   // Update reward
   async updateReward(data: Partial<IReward>): Promise<IReward> {
     const { id, values, ...rest } = data;
-    
+
     if (!id) {
-      throw new Error('ID is required for update operation');
+      throw new Error("ID is required for update operation");
     }
-    
+
     const updatedReward = await prisma.reward.update({
       where: { id },
       data: { ...rest },
       include: { values: true },
     });
-    
+
     return {
       id: updatedReward.id,
       name: updatedReward.name,
@@ -90,16 +90,15 @@ class Rewardmodel {
       cost: updatedReward.cost,
       type: updatedReward.type,
       imgUrl: updatedReward.imgUrl,
-      values: updatedReward.values.map(v => ({
+      values: updatedReward.values.map((v) => ({
         id: v.id,
         rewardId: v.rewardId,
         value: v.value,
         isUsed: v.isUsed,
-        createdAt: v.createdAt
-      }))
+        createdAt: v.createdAt,
+      })),
     };
   }
-  
 
   // Create reward value ***admin
   async createRewardValue(data: IRewardValue): Promise<IRewardValue> {
@@ -109,7 +108,9 @@ class Rewardmodel {
   }
 
   // Get one available value (not used) for specific reward
-  async getAvailableRewardValue(rewardId: number): Promise<IRewardValue | null> {
+  async getAvailableRewardValue(
+    rewardId: number
+  ): Promise<IRewardValue | null> {
     return await prisma.rewardValue.findFirst({
       where: {
         rewardId,
@@ -133,6 +134,13 @@ class Rewardmodel {
         userId: data.userId,
         rewardId: data.rewardId,
         rewardValueId: data.rewardValueId, // <-- link to value
+      },
+      include: {
+        rewardValue: {
+          select: {
+            value: true,
+          },
+        },
       },
     });
   }

@@ -15,8 +15,8 @@ router.post('/value',  rewardController.createRewardValue);
 router.post('/values/bulk', rewardController.bulkCreateRewardValues);
 
 // User routes
-router.get('/user/redemptions',  rewardController.getUserRedemptions);
-router.post('/user/redeem',  rewardController.redeemReward);
+router.get('/user/redemptions', verifyUser, rewardController.getUserRedemptions);
+router.post('/user/redeem',verifyUser,  rewardController.redeemReward);
 
 
 export default router;

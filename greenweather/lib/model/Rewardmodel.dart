@@ -1,16 +1,16 @@
 class RewardItem {
-  final int id;
+  final int? id;
   final String value;
   final bool isUsed;
   final int rewardId;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   RewardItem(
-      {required this.id,
+      {this.id,
       required this.value,
       required this.isUsed,
       required this.rewardId,
-      required this.createdAt});
+      this.createdAt});
 
   factory RewardItem.fromJson(Map<String, dynamic> json) {
     return RewardItem(
@@ -20,22 +20,26 @@ class RewardItem {
         rewardId: json['rewardId'],
         createdAt: DateTime.parse(json['createdAt']));
   }
+
+  Map<String, dynamic> toJson() {
+    return {"rewardId": rewardId, "value": value, "isUsed": isUsed};
+  }
 }
 
 class Reward {
   final int id;
   final String name;
-  final String description;
+  final String? description;
   final int cost;
   final String type;
-  final String imageUrl;
+  final String? imageUrl;
   final List<RewardItem>? values;
 
   Reward(
       {required this.id,
       required this.name,
-      required this.description,
-      required this.imageUrl,
+      this.description,
+      this.imageUrl,
       required this.cost,
       required this.type,
       this.values});
@@ -51,5 +55,15 @@ class Reward {
         cost: json['cost'],
         type: json['type'],
         values: data?.map((item) => RewardItem.fromJson(item)).toList());
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "description": description,
+      "cost": cost,
+      "type": type,
+      "imgUrl": imageUrl,
+    };
   }
 }

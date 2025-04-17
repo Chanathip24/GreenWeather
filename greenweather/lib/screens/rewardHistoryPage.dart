@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/model/Redemptionmodel.dart';
 import 'package:greenweather/model/Rewardmodel.dart';
+import 'package:greenweather/providers/reward_provider.dart';
+import 'package:provider/provider.dart';
 
 class MyRewardsPage extends StatefulWidget {
   const MyRewardsPage({super.key});
@@ -17,7 +19,9 @@ class _MyRewardsPageState extends State<MyRewardsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchRedemptions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchRedemptions();
+    });
   }
 
   Future<void> _fetchRedemptions() async {
@@ -27,45 +31,14 @@ class _MyRewardsPageState extends State<MyRewardsPage> {
       _errorMessage = '';
     });
 
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    final RewardProvider rewardProvider =
+        Provider.of<RewardProvider>(context, listen: false);
+
+    await rewardProvider.getredeemdata(); // api
+    final List<Redemption> data = rewardProvider.userRedeem;
 
     setState(() {
-      _redemptions = [
-        Redemption(
-          id: 1,
-          userId: 'user123',
-          rewardId: 1,
-          rewardValueId: 101,
-          rewardValue: 'AMZN-12345-ABCDE-67890',
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          reward: Reward(
-            id: 1,
-            name: 'Amazon Gift Card',
-            description: 'Use this to purchase items on Amazon',
-            imageUrl:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDOAGu8o_xaCmxPAWLX3LQYIRSY0CYkekykA&s',
-            cost: 500,
-            type: 'DIGITAL',
-          ),
-        ),
-        Redemption(
-          id: 2,
-          userId: 'user123',
-          rewardId: 2,
-          rewardValueId: 102,
-          rewardValue: 'COFFEE-ABC-12345',
-          createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          reward: Reward(
-            id: 2,
-            name: 'Coffee Voucher',
-            description: 'Free coffee at any branch',
-            imageUrl:
-                'https://marketplace.canva.com/EAGFex9bXyQ/1/0/1131w/canva-%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87-%E0%B8%AA%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%A5%E0%B8%94-%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%82%E0%B8%A1%E0%B8%8A%E0%B8%B1%E0%B9%88%E0%B8%99-%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2-%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3-%E0%B8%84%E0%B8%B9%E0%B8%9B%E0%B8%AD%E0%B8%87-Ghh3Qln7DEw.jpg',
-            cost: 300,
-            type: 'FOOD',
-          ),
-        ),
-      ];
+      _redemptions = data;
       _isLoading = false;
     });
   }
@@ -142,7 +115,7 @@ class _MyRewardsPageState extends State<MyRewardsPage> {
   }
 
   Widget _buildRedemptionCard(Redemption redemption) {
-    final reward = redemption.reward;
+    final reward = redemption.rewardData;
     final formattedDate = _formatDate(redemption.createdAt!);
 
     return Card(
@@ -159,7 +132,7 @@ class _MyRewardsPageState extends State<MyRewardsPage> {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      reward.imageUrl,
+                      reward.imageUrl!,
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,
@@ -268,30 +241,11 @@ class _MyRewardsPageState extends State<MyRewardsPage> {
                       ],
                     ),
                   ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(8),
-                        bottomRight: Radius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Show this code to redeem',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
           const SizedBox(height: 12),
-          if (reward?.description != null && reward!.description.isNotEmpty)
+          if (reward?.description != null && reward!.description!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(
                 left: 16,
@@ -310,7 +264,7 @@ class _MyRewardsPageState extends State<MyRewardsPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    reward.description,
+                    reward.description!,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[700],

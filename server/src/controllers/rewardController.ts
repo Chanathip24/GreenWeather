@@ -163,7 +163,7 @@ class RewardController {
   ): Promise<void> {
     try {
       // Get user ID from authenticated session
-      const userId = req.user?.id || "09555765-bce0-4fe8-85dd-2bb6a07d3bbe";
+      const userId = req.user?.id;
 
       if (!userId) {
         res.status(httpStatus.FAILED).json({
@@ -193,7 +193,7 @@ class RewardController {
   ): Promise<void> {
     try {
       // Get user ID from authenticated session
-      const userId = req.user?.id || req.body.userId;
+      const userId = req.user?.id;
 
       if (!userId) {
         res.status(httpStatus.FAILED).json({

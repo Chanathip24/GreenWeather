@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:greenweather/model/rewardModel.dart';
+import 'package:greenweather/model/Rewardmodel.dart';
+
+import 'package:greenweather/providers/reward_provider.dart';
 import 'package:greenweather/screens/AdminAddReward.dart';
 
 import 'package:greenweather/screens/AdminAddrewardItem.dart';
+import 'package:provider/provider.dart';
 
 class AdminRewardsListPage extends StatefulWidget {
   const AdminRewardsListPage({super.key});
@@ -12,45 +15,18 @@ class AdminRewardsListPage extends StatefulWidget {
 }
 
 class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
-  bool _isLoading = true;
-  List<Reward> _rewards = [];
-
   @override
   void initState() {
     super.initState();
-    _loadRewards();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadRewards();
+    });
   }
 
-  final List<Reward> mockRewards = [
-    Reward(
-        id: 1,
-        name: 'ถุงผ้าแสนดี',
-        description: 'ถุงผ้าลดโลกร้อน พกพาสะดวก ใช้ซ้ำได้',
-        imageUrl: '', // or a sample image URL
-        cost: 100,
-        type: 'FOOD',
-        values: []),
-    Reward(
-        id: 2,
-        name: 'กระบอกน้ำรักษ์โลก',
-        description: 'ใช้ซ้ำ ลดขยะพลาสติก',
-        imageUrl: '', // or a sample image URL
-        cost: 150,
-        type: 'DIGITAL',
-        values: []),
-  ];
   Future<void> _loadRewards() async {
-    setState(() {
-      _isLoading = true;
-      _rewards = mockRewards;
-    });
-
-    // Add small delay to simulate network
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      _isLoading = false;
-    });
+    RewardProvider rewardProvider =
+        Provider.of<RewardProvider>(context, listen: false);
+    await rewardProvider.getRewards();
   }
 
   Future<void> _deleteReward(int rewardId) async {}
@@ -80,6 +56,7 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final rewardProvider = Provider.of<RewardProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = isDark ? Colors.green.shade300 : Colors.green.shade600;
     final backgroundColor =
@@ -110,11 +87,11 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
         },
       ),
       body: SafeArea(
-        child: _isLoading
+        child: rewardProvider.isLoading
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
                 onRefresh: _loadRewards,
-                child: _rewards.isEmpty
+                child: rewardProvider.rewardData.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -148,10 +125,13 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: _rewards.length,
+                        itemCount: rewardProvider.rewardData.length,
                         itemBuilder: (context, index) {
-                          final reward = _rewards[index];
-
+                          Reward? reward = rewardProvider.rewardData[index];
+                          int total = reward?.values
+                                  ?.where((item) => item.isUsed != true)
+                                  .length ??
+                              0;
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
                             shape: RoundedRectangleBorder(
@@ -167,9 +147,9 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                       top: Radius.circular(16)),
                                   child: AspectRatio(
                                     aspectRatio: 3 / 1,
-                                    child: reward.imageUrl.isNotEmpty
+                                    child: reward?.imageUrl != null
                                         ? Image.network(
-                                            reward.imageUrl,
+                                            reward!.imageUrl!,
                                             fit: BoxFit.cover,
                                             errorBuilder:
                                                 (context, error, stackTrace) {
@@ -211,7 +191,7 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              reward.name,
+                                              reward?.name ?? "",
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -220,7 +200,7 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                           ),
                                           Chip(
                                             label: Text(
-                                              reward.type,
+                                              reward?.type ?? "",
                                               style: TextStyle(
                                                 color: primaryColor,
                                                 fontSize: 12,
@@ -239,7 +219,7 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        reward.description,
+                                        reward?.description ?? "",
                                         style: TextStyle(
                                           color: isDark
                                               ? Colors.grey.shade300
@@ -260,7 +240,7 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                '${reward.cost} แต้ม',
+                                                '${reward?.cost} แต้ม',
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: primaryColor,
@@ -280,7 +260,7 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                'เหลือ ${reward.values?.length} ชิ้น',
+                                                'เหลือ ${total} ชิ้น',
                                                 style: TextStyle(
                                                   color: isDark
                                                       ? Colors.grey.shade400
@@ -324,10 +304,9 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                                         builder: (context) =>
                                                             AddRewardItemPage(
                                                                 rewardId:
-                                                                    reward.id,
-                                                                rewardName:
-                                                                    reward
-                                                                        .name)));
+                                                                    reward?.id,
+                                                                data: reward
+                                                                    ?.values)));
                                               },
                                               icon: const Icon(
                                                   Icons.add_circle_outline),
@@ -340,7 +319,8 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                           const SizedBox(width: 8),
                                           IconButton(
                                             onPressed: () =>
-                                                _showDeleteConfirmation(reward),
+                                                _showDeleteConfirmation(
+                                                    reward!),
                                             icon: const Icon(
                                                 Icons.delete_outline,
                                                 color: Colors.red),
