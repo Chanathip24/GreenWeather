@@ -162,18 +162,20 @@ class _LeaderboardpageState extends State<Leaderboardpage> {
                         )
                       else
                         Expanded(
-                          child: ListView.separated(
-                            itemCount: userList.length,
-                            separatorBuilder: (context, index) =>
-                                const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final user = userList[index];
-                              return LeaderboardTile(
-                                rank: index + 1,
-                                user: user,
-                              );
-                            },
-                          ),
+                          child: userList.isEmpty
+                              ? SizedBox()
+                              : ListView.separated(
+                                  itemCount: userList.length,
+                                  separatorBuilder: (context, index) =>
+                                      const Divider(height: 1),
+                                  itemBuilder: (context, index) {
+                                    final user = userList[index];
+                                    return LeaderboardTile(
+                                      rank: index + 1,
+                                      user: user,
+                                    );
+                                  },
+                                ),
                         ),
 
                       const SizedBox(height: 16),

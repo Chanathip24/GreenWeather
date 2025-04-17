@@ -6,6 +6,7 @@ import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/review_provider.dart';
+import 'package:greenweather/providers/reward_provider.dart';
 import 'package:greenweather/providers/userlist_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 //screen
@@ -28,7 +29,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => PollutionProvider()),
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (context) => ReviewProvider()),
-        ChangeNotifierProvider(create: (context) => UserlistProvider())
+        ChangeNotifierProvider(create: (context) => UserlistProvider()),
+        ChangeNotifierProvider(create: (context) => RewardProvider())
       ],
       child: const MyApp(),
     ),

@@ -8,6 +8,7 @@ const BASE_FORECAST_DAILY_URL =
   "https://api.openweathermap.org/data/2.5/forecast/daily";
 const BASE_FORECAST_HOURLY_URL =
   "https://api.openweathermap.org/data/2.5/forecast";
+  
 //get weather forecast current
 export const getWeatherdata = async (data: locationInput): Promise<any> => {
   if (!apikey) {

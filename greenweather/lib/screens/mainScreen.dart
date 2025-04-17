@@ -66,8 +66,7 @@ class _MainscreenState extends State<Mainscreen> {
         child: CircularProgressIndicator(),
       );
     } else if (weatherProvider.error != null ||
-        pollutionProvider.error != null ||
-        authProvider.error != null) {
+        pollutionProvider.error != null ) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

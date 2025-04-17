@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:greenweather/model/Redemptionmodel.dart';
 import 'package:greenweather/model/reviewLikeModel.dart';
 import 'package:greenweather/model/transactionModel.dart';
 import 'package:greenweather/model/userModel.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+//service นี้แถม access token ไปกับ request ด้วย
 class Apiservice {
   final Dio _dio = Dio();
   final String baseUrl = dotenv.env['API_URL'] ?? "http://10.0.2.2:8082";
@@ -119,11 +121,8 @@ class Apiservice {
       final response = await _dio.get('$baseUrl/review/like/all');
       final List dataList = response.data['data'];
 
-      
-
       return dataList.map((item) => Reviewlikemodel.fromJson(item)).toList();
     } catch (e) {
-      
       throw Exception("Failed to get user's like");
     }
   }
@@ -149,6 +148,50 @@ class Apiservice {
       return Reviewlikemodel.fromJson(response.data['data']);
     } catch (e) {
       throw Exception("Failed to like the post.");
+    }
+  }
+
+  //redeem
+  Future<Redemption> redeemReward(Redemption redeem) async {
+    try {
+      final response =
+          await _dio.post('$baseUrl/reward/user/redeem', data: redeem.toJson());
+      if (response.statusCode != 200) {
+        throw Exception("Failed to redeem with status ${response.statusCode}");
+      }
+      return Redemption.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw Exception("Failed to redeem ${e.message}");
+    } catch (e) {
+      throw Exception("Unexpected error $e");
+    }
+  }
+
+  //get all redeem by user
+  Future<List<Redemption>> getAllredeem() async {
+    try {
+      final response = await _dio.get("$baseUrl/reward/user/redemptions");
+      if (response.statusCode != 200) {
+        throw Exception(
+            "Failed to get data with status code ${response.statusCode}");
+      }
+      final List data = response.data['data'];
+      print("trying to do object");
+
+      // Create and init all Redemption objects asynchronously
+      final List<Redemption> redemptions = await Future.wait(
+        data.map((item) async {
+          final redemption = Redemption.fromJson(item);
+          await redemption.init();
+          return redemption;
+        }),
+      );
+
+      return redemptions;
+    } on DioException catch (e) {
+      throw Exception("Failed to redeem ${e.message}");
+    } catch (e) {
+      throw Exception("Unexpected error $e");
     }
   }
 

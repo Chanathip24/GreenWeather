@@ -3,6 +3,7 @@ import 'package:greenweather/model/transactionModel.dart';
 import 'package:greenweather/model/userModel.dart';
 import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/userlist_provider.dart';
+import 'package:greenweather/screens/Adminrewardpage.dart';
 import 'package:greenweather/screens/edituserpage.dart';
 import 'package:greenweather/screens/loginPage.dart';
 import 'package:greenweather/screens/rewardPage.dart';
@@ -240,7 +241,7 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => RewardPage(
+                                      builder: (context) => RewardsPage(
                                           points: widget.user?.points ?? 0)),
                                 );
                               },
@@ -378,6 +379,24 @@ class _GreenUserProfilePageState extends State<GreenUserProfilePage>
                                   style: TextStyle(color: Colors.red)),
                               onTap: _showLogoutConfirmation,
                             ),
+                            Divider(
+                                height: 1, color: Colors.grey.withOpacity(0.2)),
+                            widget.user?.role == "ADMIN"
+                                ? ListTile(
+                                    leading: const Icon(
+                                        Icons.admin_panel_settings,
+                                        color: Colors.red),
+                                    title: const Text('แอดมิน',
+                                        style: TextStyle(color: Colors.red)),
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AdminRewardsListPage()));
+                                    },
+                                  )
+                                : SizedBox(),
                           ],
                         ),
                       ),

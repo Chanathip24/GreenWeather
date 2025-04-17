@@ -7,6 +7,9 @@ class Transcationmodel {
   async getTransactionbyuserid(data: Userinputid): Promise<Itranscation[]> {
     return await prisma.pointTransaction.findMany({
       where: { userId: data.userId },
+      orderBy: {
+        createdAt: 'desc',
+      },
       select: {
         id: true,
         userId: true,
