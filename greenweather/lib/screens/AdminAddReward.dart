@@ -253,8 +253,8 @@ class _AddEditRewardPageState extends State<AddEditRewardPage> {
                         ),
                         child: Text(
                           widget.reward == null
-                              ? 'เพิ่มรางวัล (mock)'
-                              : 'บันทึกการแก้ไข (mock)',
+                              ? 'เพิ่มรางวัล'
+                              : 'บันทึกการแก้ไข',
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),

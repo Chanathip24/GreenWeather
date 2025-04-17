@@ -140,7 +140,6 @@ class RewardProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      _error = e.toString();
       notifyListeners();
     }
   }
