@@ -18,35 +18,43 @@ enum PointType {
   SUBTRACT
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id                 String             @id @default(uuid())
-  email              String             @unique
+  id                 String    @id @default(uuid())
+  email              String    @unique
   password           String
-  fname              String             @default("Unknownfname")
-  lname              String             @default("Unknownlname")
-  points             Int                @default(0) // Points earned from reviews
-  createdAt          DateTime           @default(now())
-  updateAt           DateTime?          @updatedAt
-  refreshToken       String?            @db.Text
-  resetPasswordToken String?            @db.Text
-  reviews            Review[]
-  redemptions        Redemption[]
-  pointTransactions  PointTransaction[]
-  ReviewLike         ReviewLike[]
+  fname              String    @default("Unknownfname")
+  lname              String    @default("Unknownlname")
+  points             Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updateAt           DateTime? @updatedAt
+  refreshToken       String?   @db.Text
+  resetPasswordToken String?   @db.Text
+
+  role Role @default(USER)
+
+  reviews           Review[]
+  redemptions       Redemption[]
+  pointTransactions PointTransaction[]
+  ReviewLike        ReviewLike[]
 }
 
 model Review {
-  id        Int          @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    String
-  user      User         @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   location  String
-  aqi       Int          @default(0) // Air Quality Index (AQI) value
-  rating    Int          @default(0)
-  dislike   Int          @default(0) // 1-5 stars for air quality
+  aqi       Int      @default(0) // Air Quality Index (AQI) value
+  rating    Int      @default(0)
+  dislike   Int      @default(0) // 1-5 stars for air quality
   detail    String?
-  createdAt DateTime     @default(now())
+  createdAt DateTime @default(now())
 
-  likes     ReviewLike[]
+  likes ReviewLike[]
 }
 
 model PointTransaction {
@@ -60,21 +68,37 @@ model PointTransaction {
 }
 
 model Reward {
-  id          Int          @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   name        String
   description String?
   cost        Int // Cost in points
-  createdAt   DateTime     @default(now())
+  createdAt   DateTime      @default(now())
+  type        String
+  imgUrl      String?
   redemptions Redemption[]
+  values      RewardValue[]
+}
+
+model RewardValue {
+  id         Int          @id @default(autoincrement())
+  rewardId   Int
+  reward     Reward       @relation(fields: [rewardId], references: [id])
+  value      String       @unique
+  isUsed     Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  redemtions Redemption[]
 }
 
 model Redemption {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  rewardId  Int
-  reward    Reward   @relation(fields: [rewardId], references: [id])
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  userId        String
+  rewardId      Int
+  rewardValueId Int
+  createdAt     DateTime @default(now())
+
+  reward      Reward      @relation(fields: [rewardId], references: [id])
+  rewardValue RewardValue @relation(fields: [rewardValueId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
 }
 
 model ReviewLike {
@@ -86,5 +110,5 @@ model ReviewLike {
   user   User   @relation(fields: [userId], references: [id])
   review Review @relation(fields: [reviewId], references: [id])
 
-  @@unique([userId, reviewId]) 
+  @@unique([userId, reviewId])
 }

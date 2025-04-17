@@ -5,6 +5,7 @@ export interface IUser {
   fname: string;
   lname:string
   points: number;
+  role : "USER" | "ADMIN"
 }
 export interface InsertUser {
   email: string;
@@ -31,6 +32,7 @@ export interface UserResponse {
   fname: string;
   lname : string;
   points: number;
+  role : string
 }
 export interface Userinputid{
   userId: string;

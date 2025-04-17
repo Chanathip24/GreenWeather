@@ -21,6 +21,7 @@ class Usermodel {
         fname: true,
         lname: true,
         points: true,
+        role : true
       },
     });
   }
@@ -33,6 +34,7 @@ class Usermodel {
         id: true,
         fname: true,
         lname: true,
+        role :true,
         points: true,
         email: true,
         password: true,
@@ -86,6 +88,7 @@ class Usermodel {
         fname: true,
         lname: true,
         points: true,
+        role : true,
         email: true,
       },
     });
@@ -100,6 +103,7 @@ class Usermodel {
         lname: true,
         points: true,
         email: true,
+        role : true
       },
     });
   }

@@ -20,6 +20,7 @@ import { ApiError, httpStatus } from "../utils/Error";
 export const mapUserResponse = (data: IUser): UserResponse => {
   return {
     id: data.id,
+    role : data.role,
     email: data.email,
     fname: data.fname,
     lname: data.lname,
