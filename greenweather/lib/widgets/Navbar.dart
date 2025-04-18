@@ -94,7 +94,7 @@ class _NavbarState extends State<Navbar> {
         splashColor: Colors.green.withOpacity(0.1),
         highlightColor: Colors.green.withOpacity(0.2),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           constraints: BoxConstraints(minWidth: 60),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -106,7 +106,7 @@ class _NavbarState extends State<Navbar> {
                     : isActive
                         ? Colors.green
                         : Colors.grey,
-                size: 24, 
+                size: 24,
               ),
               const SizedBox(height: 4),
               Text(
