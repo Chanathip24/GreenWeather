@@ -62,7 +62,7 @@ class _AirQualityFormState extends State<AirQualityForm> {
 
         authProvider.userdata?.points =
             (authProvider.userdata?.points ?? 0) + reward;
-        print(authProvider.userdata?.points);
+        
 
         if (reviewProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(

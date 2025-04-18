@@ -231,7 +231,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Usermodel(
                         fname: _fnameController.text,
                         lname: _lnameController.text,
-                        email: _emailController.text,
+                        email: _emailController.text.toLowerCase().trim(),
                         password: _passwordController.text,
                       ),
                     );

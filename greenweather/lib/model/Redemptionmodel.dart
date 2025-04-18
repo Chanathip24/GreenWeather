@@ -20,7 +20,7 @@ class Redemption {
     this.rewardValue,
   });
 
-  // ✅ Call this manually after creating the object
+  
   Future<void> init() async {
     rewardData = await _getReward(rewardId);
   }

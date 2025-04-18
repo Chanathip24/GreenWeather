@@ -176,7 +176,7 @@ class Apiservice {
             "Failed to get data with status code ${response.statusCode}");
       }
       final List data = response.data['data'];
-      print("trying to do object");
+      
 
       // Create and init all Redemption objects asynchronously
       final List<Redemption> redemptions = await Future.wait(

@@ -238,8 +238,8 @@ class _LoginPageState extends State<LoginPage> {
                             return;
                           }
                           await authProvider.login(Usermodel(
-                            email: _emailController.text.trim(),
-                            password: _passwordController.text.trim(),
+                            email: _emailController.text.toLowerCase().trim(),
+                            password: _passwordController.text,
                           ));
 
                           if (authProvider.isAuthenticate) {

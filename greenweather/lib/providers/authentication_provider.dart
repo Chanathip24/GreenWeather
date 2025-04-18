@@ -28,6 +28,15 @@ class AuthenticationProvider extends ChangeNotifier {
   final _apiService = Apiservice();
   final _authService = AuthService();
 
+
+  //ลบแล้วอัพเดท ui
+  void deductPoints(int cost) {
+    if (userdata != null) {
+      userdata!.points = (userdata!.points ?? 0) - cost;
+      notifyListeners(); // 💡 This will trigger UI updates
+    }
+  }
+
   //get transaction
   Future<void> getTransaction() async {
     _loading = true;

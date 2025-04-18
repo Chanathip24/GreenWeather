@@ -32,7 +32,7 @@ class _NavbarState extends State<Navbar> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -86,32 +86,44 @@ class _NavbarState extends State<Navbar> {
     int index, {
     bool? isMid,
   }) {
-    return GestureDetector(
-      onTap: () => widget.onItemTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isMid != null
-                ? Colors.white
-                : isActive
-                    ? Colors.green
-                    : Colors.grey,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => widget.onItemTapped(index),
+        borderRadius: BorderRadius.circular(15),
+        splashColor: Colors.green.withOpacity(0.1),
+        highlightColor: Colors.green.withOpacity(0.2),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          constraints: BoxConstraints(minWidth: 60),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isMid != null
+                    ? Colors.white
+                    : isActive
+                        ? Colors.green
+                        : Colors.grey,
+                size: 24, 
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isMid != null
+                      ? Colors.white
+                      : isActive
+                          ? Colors.green
+                          : Colors.grey,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
           ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isMid != null
-                  ? Colors.white
-                  : isActive
-                      ? Colors.green
-                      : Colors.grey,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

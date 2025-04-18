@@ -3,15 +3,17 @@ import 'package:greenweather/model/Redemptionmodel.dart';
 import 'dart:async';
 
 import 'package:greenweather/model/Rewardmodel.dart';
-import 'package:greenweather/providers/review_provider.dart';
+
+import 'package:greenweather/providers/authentication_provider.dart';
+
 import 'package:greenweather/providers/reward_provider.dart';
 import 'package:greenweather/screens/rewardHistoryPage.dart';
 import 'package:provider/provider.dart';
 
-// Main Rewards Page
+
 class RewardsPage extends StatefulWidget {
-  final int points;
-  const RewardsPage({super.key, required this.points});
+  int points;
+  RewardsPage({super.key, required this.points});
 
   @override
   State<RewardsPage> createState() => _RewardsPageState();
@@ -90,10 +92,15 @@ class _RewardsPageState extends State<RewardsPage> {
     //provider
     final RewardProvider rewardProvider =
         Provider.of<RewardProvider>(context, listen: false);
+    final AuthenticationProvider authenticationProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
     //redeem
     await rewardProvider
         .redeem(Redemption(rewardId: reward.id)); // Simulate API call
 
+    authenticationProvider.deductPoints(reward.cost);
+    widget.points = widget.points - reward.cost;
+    
     Navigator.pop(context); // Close loading dialog
 
     //if failed
@@ -355,14 +362,7 @@ class _RewardsPageState extends State<RewardsPage> {
               ),
             ),
           ),
-          const Spacer(),
-          TextButton.icon(
-            onPressed: () {
-              // Navigate to points history (implement this later)
-            },
-            icon: const Icon(Icons.history),
-            label: const Text('History'),
-          ),
+          
         ],
       ),
     );
@@ -455,7 +455,7 @@ class _RewardsPageState extends State<RewardsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image with availability overlay
+          
           Stack(
             children: [
               ClipRRect(

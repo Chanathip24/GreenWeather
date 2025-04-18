@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:greenweather/model/Redemptionmodel.dart';
-import 'package:greenweather/model/Rewardmodel.dart';
 import 'package:greenweather/providers/reward_provider.dart';
 import 'package:provider/provider.dart';
 
