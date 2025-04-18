@@ -52,6 +52,7 @@ Follow these steps to set up the Flutter frontend locally:
 
    ```env
    API_URL=your-backend-route
+   POINT_REVIEW_REWARD = your point should the same with backend api
    ```
 
    Replace `your-backend-route` with your actual backend server URL.
