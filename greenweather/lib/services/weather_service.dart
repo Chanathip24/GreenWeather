@@ -16,8 +16,10 @@ class WeatherService {
       } else {
         throw Exception('Failed to load weather data: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      throw Exception("Error fetching weather data: ${e.message}");
     } catch (e) {
-      throw Exception("Error fetching weather data: $e");
+      throw Exception("Unexpected Error $e");
     }
   }
 

@@ -10,7 +10,6 @@ import 'package:greenweather/providers/reward_provider.dart';
 import 'package:greenweather/screens/rewardHistoryPage.dart';
 import 'package:provider/provider.dart';
 
-
 class RewardsPage extends StatefulWidget {
   int points;
   RewardsPage({super.key, required this.points});
@@ -24,8 +23,6 @@ class _RewardsPageState extends State<RewardsPage> {
   //categories
   final List<String> _categories = ['All', 'Food', 'Vouchers', 'Digital'];
   List<Reward?> _allRewards = [];
-
-  // Mock data - replace with API call
 
   List<Reward?> _filteredRewards = [];
 
@@ -100,7 +97,7 @@ class _RewardsPageState extends State<RewardsPage> {
 
     authenticationProvider.deductPoints(reward.cost);
     widget.points = widget.points - reward.cost;
-    
+
     Navigator.pop(context); // Close loading dialog
 
     //if failed
@@ -362,7 +359,6 @@ class _RewardsPageState extends State<RewardsPage> {
               ),
             ),
           ),
-          
         ],
       ),
     );
@@ -455,7 +451,6 @@ class _RewardsPageState extends State<RewardsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          
           Stack(
             children: [
               ClipRRect(

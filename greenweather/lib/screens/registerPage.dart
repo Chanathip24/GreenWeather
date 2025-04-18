@@ -120,7 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 _buildInputField(
                   label: 'Lastname',
-                  hintText: 'ชื่อเล่น',
+                  hintText: 'นามสกุล',
                   controller: _lnameController,
                   icon: Icons.person_outline,
                 ),

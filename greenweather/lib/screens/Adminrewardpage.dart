@@ -317,14 +317,14 @@ class _AdminRewardsListPageState extends State<AdminRewardsListPage> {
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          IconButton(
-                                            onPressed: () =>
-                                                _showDeleteConfirmation(
-                                                    reward!),
-                                            icon: const Icon(
-                                                Icons.delete_outline,
-                                                color: Colors.red),
-                                          ),
+                                          // IconButton(
+                                          //   onPressed: () =>
+                                          //       _showDeleteConfirmation(
+                                          //           reward!),
+                                          //   icon: const Icon(
+                                          //       Icons.delete_outline,
+                                          //       color: Colors.red),
+                                          // ),
                                         ],
                                       ),
                                     ],
