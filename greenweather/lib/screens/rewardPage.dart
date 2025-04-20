@@ -111,6 +111,8 @@ class _RewardsPageState extends State<RewardsPage> {
     //if success
     _showSuccessDialog(reward);
     await _loadRewards();
+    await Provider.of<AuthenticationProvider>(context, listen: false)
+        .getTransaction();
   }
 
   Future<bool> _showConfirmationDialog(Reward reward) async {
