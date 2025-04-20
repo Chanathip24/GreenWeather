@@ -240,6 +240,6 @@ POINT_REVIEW_REWARD = 15
 6. **IMPORTANT**
    ผู้ใช้แอดมิน 1 คน - มีอีเมล admin@greenweather.com และรหัสผ่าน @Admin123
    ผู้ใช้ทั่วไป 10 คน - มีอีเมลในรูปแบบ user1@greenweather.com ถึง user10@greenweather.com และรหัสผ่านในรูปแบบ @User1pass ถึง @User10pass
-   ของรางวัล 1 รายการ - "Eco Bottle" ที่มีราคา 10 แต้ม
+   
 
 
