@@ -51,8 +51,9 @@ class _AirQualityFormState extends State<AirQualityForm> {
               main: currentWeather?.main,
               location: selectProvince),
         );
-        // //get transaction again
-        // await authProvider.getTransaction();
+
+        //get transaction again
+        await authProvider.getTransaction();
         // //get all user again
         // await Provider.of<UserlistProvider>(context, listen: false)
         //     .getAllUser();

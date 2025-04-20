@@ -37,15 +37,6 @@ class MainAppBar extends StatelessWidget {
               ),
             ],
           ),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.notifications_none, size: 24),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, size: 24),
-            onPressed: () {},
-          ),
         ],
       ),
     );
