@@ -47,6 +47,7 @@ model Review {
   id        Int      @id @default(autoincrement())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  main String?
   location  String
   aqi       Int      @default(0) // Air Quality Index (AQI) value
   rating    Int      @default(0)

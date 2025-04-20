@@ -7,7 +7,6 @@ import 'package:greenweather/providers/authentication_provider.dart';
 import 'package:greenweather/providers/pollution_provider.dart';
 import 'package:greenweather/providers/province_provider.dart';
 import 'package:greenweather/providers/review_provider.dart';
-import 'package:greenweather/providers/userlist_provider.dart';
 import 'package:greenweather/providers/weather_provider.dart';
 import 'package:greenweather/screens/loginPage.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +35,7 @@ class _AirQualityFormState extends State<AirQualityForm> {
     final AuthenticationProvider authProvider =
         Provider.of<AuthenticationProvider>(context);
     final currentPM = Provider.of<PollutionProvider>(context).currentPollution;
+    final currentWeather = Provider.of<WeatherProvider>(context).currentWeather;
     final selectProvince =
         Provider.of<ProvinceProvider>(context).selectProvince;
     final reviewProvider = Provider.of<ReviewProvider>(context);
@@ -48,6 +48,7 @@ class _AirQualityFormState extends State<AirQualityForm> {
               detail: _detail.text,
               userId: userId,
               aqi: currentPM!.aqi,
+              main: currentWeather?.main,
               location: selectProvince),
         );
         // //get transaction again
@@ -62,7 +63,6 @@ class _AirQualityFormState extends State<AirQualityForm> {
 
         authProvider.userdata?.points =
             (authProvider.userdata?.points ?? 0) + reward;
-        
 
         if (reviewProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(

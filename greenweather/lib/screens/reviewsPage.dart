@@ -371,17 +371,6 @@ class _ReviewCardState extends State<ReviewCard> {
                   padding: EdgeInsets.zero,
                 ),
                 const SizedBox(width: 12),
-                // Share button
-                IconButton(
-                  icon: const Icon(
-                    Icons.share_outlined,
-                    size: 20,
-                  ),
-                  onPressed: () {},
-                  constraints: const BoxConstraints(),
-                  padding: EdgeInsets.zero,
-                  color: Colors.grey.shade700,
-                ),
               ],
             ),
 
@@ -439,13 +428,13 @@ class _ReviewCardState extends State<ReviewCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        MockServices.getWeatherIcon(widget.index),
+                        MockServices.getWeatherIcon(widget.review.main ?? "No"),
                         size: 14,
                         color: Colors.blue.shade700,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        MockServices.getWeatherText(widget.index),
+                        MockServices.getWeatherText(widget.review.main ?? "No"),
                         style: TextStyle(
                           color: Colors.blue.shade700,
                           fontWeight: FontWeight.w500,

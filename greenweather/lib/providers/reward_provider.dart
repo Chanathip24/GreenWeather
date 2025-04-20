@@ -111,18 +111,16 @@ class RewardProvider extends ChangeNotifier {
 
   //redeem code
   Future<void> redeem(Redemption redeem) async {
-    _isLoading = true;
     _error = null;
     notifyListeners();
     try {
       final Redemption response = await _apiservice.redeemReward(redeem);
-      _isLoading = false;
+
       if (!_userRedeem.any((r) => r.id == response.id)) {
         _userRedeem.add(response);
       }
       notifyListeners();
     } catch (e) {
-      _isLoading = false;
       _error = e.toString();
       notifyListeners();
     }

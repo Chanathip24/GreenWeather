@@ -40,23 +40,48 @@ class MockServices {
     }
   }
 
-  static IconData getWeatherIcon(int index) {
-    final List<IconData> icons = [
-      Icons.wb_sunny_outlined,
-      Icons.cloud_outlined,
-      Icons.grain,
-      Icons.thermostat,
-    ];
-    return icons[index % icons.length];
+  static IconData getWeatherIcon(String main) {
+    switch (main.toLowerCase()) {
+      case 'clear':
+        return Icons.wb_sunny_outlined; // แดดจัด
+      case 'clouds':
+        return Icons.cloud_outlined; // มีเมฆ
+      case 'rain':
+      case 'drizzle':
+        return Icons.grain; // ฝนตก / ฝนปรอยๆ
+      case 'thunderstorm':
+        return Icons.flash_on; // พายุฟ้าคะนอง
+      case 'snow':
+        return Icons.ac_unit; // หิมะ
+      case 'mist':
+      case 'fog':
+      case 'haze':
+        return Icons.blur_on; // หมอก
+      default:
+        return Icons.help_outline; // สภาพอากาศไม่แน่นอน
+    }
   }
 
-  static String getWeatherText(int index) {
-    final List<String> weather = [
-      'แดดจัด',
-      'มีเมฆมาก',
-      'ฝนตก',
-      'ร้อนมาก',
-    ];
-    return weather[index % weather.length];
+  static String getWeatherText(String main) {
+    switch (main.toLowerCase()) {
+      case 'clear':
+        return 'แดดจัด';
+      case 'clouds':
+        return 'มีเมฆมาก';
+      case 'rain':
+        return 'ฝนตก';
+      case 'thunderstorm':
+        return 'พายุฝนฟ้าคะนอง';
+      case 'drizzle':
+        return 'ฝนปรอยๆ';
+      case 'snow':
+        return 'หิมะตก';
+      case 'mist':
+      case 'fog':
+      case 'haze':
+        return 'หมอกลง';
+      default:
+        return 'สภาพอากาศไม่แน่นอน';
+    }
   }
 }

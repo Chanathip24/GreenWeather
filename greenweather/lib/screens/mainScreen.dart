@@ -27,6 +27,15 @@ class _MainscreenState extends State<Mainscreen> {
     _loadData();
   }
 
+  Future<void> _refreshData() async {
+    await Future.wait([
+      Provider.of<PollutionProvider>(context, listen: false)
+          .fetchPollution(_selectedCity),
+      Provider.of<WeatherProvider>(context, listen: false)
+          .fetchWeatherData(_selectedCity)
+    ]);
+  }
+
   Future<void> _loadData() async {
     final provinceProvider = Provider.of<ProvinceProvider>(context);
     final selectedProvince = provinceProvider.selectProvince;
@@ -37,36 +46,22 @@ class _MainscreenState extends State<Mainscreen> {
       _isInit = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Future.wait([
-          Provider.of<PollutionProvider>(context, listen: false)
-              .fetchPollution(_selectedCity),
-          Provider.of<WeatherProvider>(context, listen: false)
-              .fetchWeatherData(_selectedCity)
-        ]);
+        _refreshData();
       });
     }
-  }
-
-  Future<void> _refreshData() async {
-    await Future.wait([
-      Provider.of<PollutionProvider>(context, listen: false)
-          .fetchPollution(_selectedCity),
-      Provider.of<WeatherProvider>(context, listen: false)
-          .fetchWeatherData(_selectedCity)
-    ]);
   }
 
   Widget build(BuildContext context) {
     //provider
     final weatherProvider = Provider.of<WeatherProvider>(context);
     final pollutionProvider = Provider.of<PollutionProvider>(context);
-    final authProvider = Provider.of<AuthenticationProvider>(context);
+
     if (weatherProvider.isLoading && pollutionProvider.isLoading) {
       return Center(
         child: CircularProgressIndicator(),
       );
     } else if (weatherProvider.error != null ||
-        pollutionProvider.error != null ) {
+        pollutionProvider.error != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -105,7 +100,8 @@ class _MainscreenState extends State<Mainscreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => WeatherDetailPage(
-                                        weather: weatherProvider.currentWeather!,
+                                        weather:
+                                            weatherProvider.currentWeather!,
                                         forecast:
                                             weatherProvider.forecastWeather!,
                                         hourly: weatherProvider.hourlyWeather,

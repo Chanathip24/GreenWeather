@@ -19,6 +19,7 @@ class Reviewmodel {
         rating: true,
         dislike: true,
         detail: true,
+        main : true,
         user: {
           select: {
             fname: true,
@@ -35,6 +36,7 @@ class Reviewmodel {
         location: data.location ?? "Unknown location",
         aqi: data.aqi,
         detail: data.detail,
+        main : data.main
       },
     });
   }

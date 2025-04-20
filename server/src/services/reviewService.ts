@@ -11,12 +11,7 @@ export const createReview = async (data: IReview): Promise<IReview> => {
     throw new ApiError(httpStatus.NOT_FOUND, "No data provided.");
   }
 
-  const review: IReview = await reviewModel.createReview({
-    userId: data.userId,
-    location: data.location,
-    aqi: data.aqi,
-    detail: data.detail,
-  });
+  const review: IReview = await reviewModel.createReview(data);
 
   await userModel.addPoints({
     id: data.userId,

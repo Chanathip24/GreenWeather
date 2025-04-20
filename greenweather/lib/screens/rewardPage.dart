@@ -38,10 +38,13 @@ class _RewardsPageState extends State<RewardsPage> {
     RewardProvider rewardProvider =
         Provider.of<RewardProvider>(context, listen: false);
     await rewardProvider.getRewards();
-    _allRewards = rewardProvider.rewardData;
-    if (_selectedCategoryIndex == 0) {
-      _filteredRewards = List.from(_allRewards);
-    }
+
+    setState(() {
+      _allRewards = rewardProvider.rewardData;
+      if (_selectedCategoryIndex == 0) {
+        _filteredRewards = List.from(_allRewards);
+      }
+    });
   }
 
   void _filterRewards() {
@@ -91,9 +94,9 @@ class _RewardsPageState extends State<RewardsPage> {
         Provider.of<RewardProvider>(context, listen: false);
     final AuthenticationProvider authenticationProvider =
         Provider.of<AuthenticationProvider>(context, listen: false);
+
     //redeem
-    await rewardProvider
-        .redeem(Redemption(rewardId: reward.id)); // Simulate API call
+    await rewardProvider.redeem(Redemption(rewardId: reward.id)); // API call
 
     authenticationProvider.deductPoints(reward.cost);
     widget.points = widget.points - reward.cost;
@@ -107,6 +110,7 @@ class _RewardsPageState extends State<RewardsPage> {
     }
     //if success
     _showSuccessDialog(reward);
+    await _loadRewards();
   }
 
   Future<bool> _showConfirmationDialog(Reward reward) async {
@@ -166,7 +170,9 @@ class _RewardsPageState extends State<RewardsPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const MyRewardsPage()));
+                      builder: (context) => const MyRewardsPage())).then((_) {
+                _loadRewards();
+              });
             },
             child: const Text('View My Rewards'),
           ),
@@ -183,9 +189,9 @@ class _RewardsPageState extends State<RewardsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cancel, color: Colors.green, size: 64),
+            const Icon(Icons.cancel, color: Colors.red, size: 64),
             const SizedBox(height: 16),
-            Text('You failed to  ${reward.name}'),
+            Text('You failed to redeem ${reward.name}'),
             const SizedBox(height: 12),
             const Text(
               'Please try again later',
@@ -194,15 +200,9 @@ class _RewardsPageState extends State<RewardsPage> {
           ],
         ),
         actions: [
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const MyRewardsPage()));
-            },
-            child: const Text('View My Rewards'),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -251,22 +251,6 @@ class _RewardsPageState extends State<RewardsPage> {
     );
   }
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final rewardProvider = Provider.of<RewardProvider>(context);
@@ -287,7 +271,9 @@ class _RewardsPageState extends State<RewardsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const MyRewardsPage()),
-              );
+              ).then((_) {
+                _loadRewards();
+              });
             },
           ),
         ],

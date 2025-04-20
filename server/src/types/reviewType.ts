@@ -7,6 +7,7 @@ export interface IReview{
     dislike?: number;
     detail: string | null;
     createdAt?: Date;
+    main? : string | null;
 }
 
 export interface reviewLike{
