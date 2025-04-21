@@ -29,6 +29,13 @@ Users who report weather data can earn points, compete on a leaderboard, and red
 | Database  | MySQL   |
 | API       | OpenWeatherMap, WAQI |
 
+## ⚙️ Prerequisites
+
+Before starting the setup, please make sure you have the following installed on your machine:
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install)  
+- [Bun](https://bun.sh/docs/installation)
+
 ## 📦 Setup and Installation - Frontend
 
 Follow these steps to set up the Flutter frontend locally:
